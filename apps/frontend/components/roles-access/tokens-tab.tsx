@@ -4,24 +4,22 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Check, Copy, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
-import { Button } from '@/components/ui/button';
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import {
+  Input,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@repo/shared-ui';
 import {
   createToken,
   listRoles,

@@ -2,15 +2,16 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { listSchemas } from '@/lib/api/schemas';
-import { Card, CardContent } from '@/components/ui/card';
 import {
+  Card,
+  CardContent,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@repo/shared-ui';
 
 export function SchemaList() {
   const { data, isLoading, isError } = useQuery({

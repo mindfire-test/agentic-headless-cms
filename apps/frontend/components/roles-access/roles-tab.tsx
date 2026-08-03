@@ -9,18 +9,18 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
 import {
+  Button,
+  Checkbox,
+  Input,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Textarea } from '@/components/ui/textarea';
+  Textarea,
+} from '@repo/shared-ui';
 import { createRole, listRoles, updateRole } from '@/lib/api/access';
 import { listSchemas } from '@/lib/api/schemas';
 

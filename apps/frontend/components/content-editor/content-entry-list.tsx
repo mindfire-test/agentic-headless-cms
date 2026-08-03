@@ -10,17 +10,18 @@ import {
 import Link from 'next/link';
 import { useState } from 'react';
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import {
+  Button,
+  Card,
+  CardContent,
+  Input,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@repo/shared-ui';
 import { deleteContentEntry, listContentEntries } from '@/lib/api/content';
 import type { ContentEntryListProps } from '@/types/component.types';
 

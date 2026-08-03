@@ -14,9 +14,14 @@ import {
   updateContentEntry,
 } from '@/lib/api/content';
 import { ApiError } from '@/lib/api-client';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form } from '@/components/ui/form';
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Form,
+} from '@repo/shared-ui';
 import { DynamicField } from './dynamic-field';
 import { VersionHistoryDrawer } from './version-history-drawer';
 import type { ContentEntryFormProps } from '@/types/component.types';

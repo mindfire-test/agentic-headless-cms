@@ -3,16 +3,16 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
+  Button,
   Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+  Input,
+  Label,
+} from '@repo/shared-ui';
 import { toast } from 'sonner';
 import { apiFetch } from '@/lib/api-client';
 

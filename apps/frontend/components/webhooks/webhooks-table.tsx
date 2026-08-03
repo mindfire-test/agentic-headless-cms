@@ -4,25 +4,23 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { listWebhooks, createWebhook, deleteWebhook } from '@/lib/api/webhooks';
 import { WebhookRecord } from '@repo/shared-types';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
+  Button,
+  Checkbox,
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import {
+  Input,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@repo/shared-ui';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Trash2 } from 'lucide-react';
 

@@ -3,14 +3,14 @@
 import { PlusIcon, Trash2 } from 'lucide-react';
 import { type Control, useFieldArray, useFormContext } from 'react-hook-form';
 
-import { Button } from '@/components/ui/button';
 import {
+  Button,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from '@repo/shared-ui';
 import type { DynamicFieldProps } from '@/types/component.types';
 import { FieldTypeInput } from './field-type-input';
 

@@ -3,14 +3,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { diffWordsWithSpace } from 'diff';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import {
+  Button,
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from '@/components/ui/sheet';
+} from '@repo/shared-ui';
 import { listContentVersions, revertContentEntry } from '@/lib/api/content';
 import type { VersionHistoryDrawerProps } from '@/types/component.types';
 import { formatFieldValue } from '@/utils/lexical';

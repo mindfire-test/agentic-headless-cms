@@ -24,24 +24,25 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import {
+  Input,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@repo/shared-ui';
 import { createSchema } from '@/lib/api/schemas';
 import { ApiError } from '@/lib/api-client';
 import type { SchemaBuilderFieldValues } from '@/types/component.types';

@@ -12,8 +12,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 
 import { ConfirmDialog } from '@/components/confirm-dialog';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Button, Card, CardContent } from '@repo/shared-ui';
 import { deleteMedia, listMedia, mediaFileUrl } from '@/lib/api/media';
 
 const PAGE_SIZE = 24;

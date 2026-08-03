@@ -12,23 +12,22 @@ import {
   User,
 } from 'lucide-react';
 
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import {
+  Avatar,
+  AvatarFallback,
+  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import {
+  Input,
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-} from '@/components/ui/sheet';
+} from '@repo/shared-ui';
 import { SidebarNav } from '@/components/layout/sidebar-nav';
 import { useAuthStore } from '@/stores/auth-store';
 

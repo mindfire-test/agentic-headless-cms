@@ -3,24 +3,22 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { listLocales, createLocale, deleteLocale } from '@/lib/api/locales';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
+  Button,
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import {
+  Input,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@repo/shared-ui';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Trash2 } from 'lucide-react';
 import { LocaleRecord } from '@repo/shared-types';

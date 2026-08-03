@@ -5,7 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Trash2 } from 'lucide-react';
 import { useWatch } from 'react-hook-form';
 
-import { Button } from '@/components/ui/button';
+import { Badge, Button } from '@repo/shared-ui';
 import { cn } from '@/lib/utils';
 
 import type {
@@ -87,10 +87,10 @@ export function FieldListItem({
           {displayName || `Field ${index + 1}`}
         </span>
         <span className="text-muted-foreground">{dataType}</span>
-        {isRequired ? <Badge>*required</Badge> : null}
-        {isUnique ? <Badge>unique</Badge> : null}
-        {isLocalized ? <Badge>localized</Badge> : null}
-        {isRepeatable ? <Badge>repeatable</Badge> : null}
+        {isRequired ? <Badge variant="muted">*required</Badge> : null}
+        {isUnique ? <Badge variant="muted">unique</Badge> : null}
+        {isLocalized ? <Badge variant="muted">localized</Badge> : null}
+        {isRepeatable ? <Badge variant="muted">repeatable</Badge> : null}
       </button>
 
       <Button
@@ -103,13 +103,5 @@ export function FieldListItem({
         <Trash2 className="size-4" />
       </Button>
     </div>
-  );
-}
-
-function Badge({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="bg-muted text-muted-foreground rounded px-1.5 py-0.5 text-xs">
-      {children}
-    </span>
   );
 }

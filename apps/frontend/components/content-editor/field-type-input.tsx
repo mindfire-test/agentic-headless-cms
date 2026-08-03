@@ -2,16 +2,16 @@
 
 import type * as React from 'react';
 import type { FieldTypeInputProps } from '@/types/component.types';
-import { Input } from '@/components/ui/input';
 import {
+  Input,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
+  Switch,
+  Textarea,
+} from '@repo/shared-ui';
 
 import { LexicalRichTextField } from './lexical-rich-text-field';
 

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/shared-ui';
 import { GeneralSettingsTab } from '@/components/settings/general-settings-tab';
 import { LocalesTab } from '@/components/settings/locales-tab';
 

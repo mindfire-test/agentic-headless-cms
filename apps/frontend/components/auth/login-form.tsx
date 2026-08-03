@@ -7,18 +7,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { loginSchema, type LoginInput } from '@repo/shared-types';
 
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
+  Button,
+  Checkbox,
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
+  Input,
+  Separator,
+} from '@repo/shared-ui';
 import { API_BASE_URL } from '@/lib/api-client';
 import { useAuthStore } from '@/stores/auth-store';
 

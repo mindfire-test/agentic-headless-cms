@@ -1,6 +1,6 @@
 'use client';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/shared-ui';
 import { RolesTab } from '@/components/roles-access/roles-tab';
 import { UsersTab } from '@/components/roles-access/users-tab';
 import { TokensTab } from '@/components/roles-access/tokens-tab';
