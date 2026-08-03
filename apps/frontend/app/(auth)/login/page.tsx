@@ -14,12 +14,16 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <Card>
-      <CardHeader className="text-center">
-        <CardTitle className="text-xl">Agentic CMS</CardTitle>
-        <CardDescription>Sign in to manage your content</CardDescription>
+    <Card className="w-full shadow-2xl border-muted/30 rounded-2xl overflow-hidden backdrop-blur-sm bg-background/95 transition-all hover:shadow-primary/5">
+      <CardHeader className="text-center pt-8 pb-4 space-y-3">
+        <CardTitle className="text-2xl font-bold tracking-tight">
+          Agentic CMS
+        </CardTitle>
+        <CardDescription className="text-sm font-medium">
+          Sign in to manage your content
+        </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-8 pb-8">
         <LoginForm />
       </CardContent>
     </Card>

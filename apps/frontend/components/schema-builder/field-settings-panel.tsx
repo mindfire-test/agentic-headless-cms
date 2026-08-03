@@ -1,8 +1,7 @@
 'use client';
 
 import { schemaFieldDataTypes } from '@repo/shared-types';
-import { useWatch } from 'react-hook-form';
-
+import { useWatch, Controller } from 'react-hook-form';
 import {
   Button,
   Card,
@@ -10,11 +9,8 @@ import {
   CardHeader,
   CardTitle,
   Checkbox,
-  FormControl,
   FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+  InputWrapper,
   Input,
   Select,
   SelectContent,
@@ -37,6 +33,7 @@ export function FieldSettingsPanel({
   index,
   control,
   onRemove,
+  errors,
 }: FieldSettingsPanelProps<SchemaBuilderFieldValues>) {
   // useWatch is called unconditionally with a fallback index of 0 to comply with hooks rules.
   const dataType = useWatch({ control, name: `fields.${index ?? 0}.dataType` });
@@ -60,46 +57,60 @@ export function FieldSettingsPanel({
         <CardTitle>Field settings</CardTitle>
       </CardHeader>
       <CardContent className="grid gap-4">
-        <FormField
+        <Controller
           control={control}
           name={`fields.${index}.displayName`}
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Display name</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g. Title" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+            <FormField>
+              <label htmlFor={`display-name-${index}`}>Display name</label>
+              <InputWrapper>
+                <Input
+                  id={`display-name-${index}`}
+                  placeholder="e.g. Title"
+                  {...field}
+                />
+              </InputWrapper>
+              {errors?.displayName?.message && (
+                <p className="text-danger text-sm mt-1">
+                  {errors.displayName.message as string}
+                </p>
+              )}
+            </FormField>
           )}
         />
 
-        <FormField
+        <Controller
           control={control}
           name={`fields.${index}.apiId`}
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>API ID</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g. title" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+            <FormField>
+              <label htmlFor={`api-id-${index}`}>API ID</label>
+              <InputWrapper>
+                <Input
+                  id={`api-id-${index}`}
+                  placeholder="e.g. title"
+                  {...field}
+                />
+              </InputWrapper>
+              {errors?.apiId?.message && (
+                <p className="text-danger text-sm mt-1">
+                  {errors.apiId.message as string}
+                </p>
+              )}
+            </FormField>
           )}
         />
 
-        <FormField
+        <Controller
           control={control}
           name={`fields.${index}.dataType`}
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Type</FormLabel>
+            <FormField>
+              <label htmlFor={`data-type-${index}`}>Type</label>
               <Select value={field.value} onValueChange={field.onChange}>
-                <FormControl>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a type" />
-                  </SelectTrigger>
-                </FormControl>
+                <SelectTrigger id={`data-type-${index}`} className="w-full">
+                  <SelectValue placeholder="Select a type" />
+                </SelectTrigger>
                 <SelectContent>
                   {schemaFieldDataTypes.map((type) => (
                     <SelectItem key={type} value={type}>
@@ -108,73 +119,93 @@ export function FieldSettingsPanel({
                   ))}
                 </SelectContent>
               </Select>
-              <FormMessage />
-            </FormItem>
+              {errors?.dataType?.message && (
+                <p className="text-danger text-sm mt-1">
+                  {errors.dataType.message as string}
+                </p>
+              )}
+            </FormField>
           )}
         />
 
         <div className="grid grid-cols-2 gap-3">
-          <FormField
+          <Controller
             control={control}
             name={`fields.${index}.isRequired`}
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center gap-2 space-y-0">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <FormLabel className="font-normal">Required</FormLabel>
-              </FormItem>
+              <FormField className="flex flex-row items-center gap-2 space-y-0">
+                <Checkbox
+                  id={`required-${index}`}
+                  checked={field.value}
+                  onChange={field.onChange}
+                />
+                <label
+                  htmlFor={`required-${index}`}
+                  className="font-normal !mb-0 cursor-pointer"
+                >
+                  Required
+                </label>
+              </FormField>
             )}
           />
 
-          <FormField
+          <Controller
             control={control}
             name={`fields.${index}.isUnique`}
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center gap-2 space-y-0">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <FormLabel className="font-normal">Unique</FormLabel>
-              </FormItem>
+              <FormField className="flex flex-row items-center gap-2 space-y-0">
+                <Checkbox
+                  id={`unique-${index}`}
+                  checked={field.value}
+                  onChange={field.onChange}
+                />
+                <label
+                  htmlFor={`unique-${index}`}
+                  className="font-normal !mb-0 cursor-pointer"
+                >
+                  Unique
+                </label>
+              </FormField>
             )}
           />
 
-          <FormField
+          <Controller
             control={control}
             name={`fields.${index}.isLocalized`}
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center gap-2 space-y-0">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <FormLabel className="font-normal">Localized</FormLabel>
-              </FormItem>
+              <FormField className="flex flex-row items-center gap-2 space-y-0">
+                <Checkbox
+                  id={`localized-${index}`}
+                  checked={field.value}
+                  onChange={field.onChange}
+                />
+                <label
+                  htmlFor={`localized-${index}`}
+                  className="font-normal !mb-0 cursor-pointer"
+                >
+                  Localized
+                </label>
+              </FormField>
             )}
           />
 
-          <FormField
+          <Controller
             control={control}
             name={`fields.${index}.isRepeatable`}
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center gap-2 space-y-0">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <FormLabel className="font-normal">Repeatable</FormLabel>
-              </FormItem>
+              <FormField className="flex flex-row items-center gap-2 space-y-0">
+                <Checkbox
+                  id={`repeatable-${index}`}
+                  checked={field.value}
+                  onChange={field.onChange}
+                />
+                <label
+                  htmlFor={`repeatable-${index}`}
+                  className="font-normal !mb-0 cursor-pointer"
+                >
+                  Repeatable
+                </label>
+              </FormField>
             )}
           />
         </div>
@@ -185,74 +216,94 @@ export function FieldSettingsPanel({
             <div className="flex flex-wrap gap-3">
               {showLengthLimits ? (
                 <>
-                  <FormField
+                  <Controller
                     control={control}
                     name={`fields.${index}.validation.min`}
                     render={({ field }) => (
-                      <FormItem className="w-24">
-                        <FormLabel className="font-normal">Min</FormLabel>
-                        <FormControl>
+                      <FormField className="w-24">
+                        <label htmlFor={`min-${index}`} className="font-normal">
+                          Min
+                        </label>
+                        <InputWrapper>
                           <Input
+                            id={`min-${index}`}
                             type="number"
-                            value={(field.value as number | undefined) ?? ''}
-                            onChange={(event) =>
+                            value={(
+                              (field.value as number | undefined) ?? ''
+                            ).toString()}
+                            onChange={(val) =>
                               field.onChange(
-                                event.target.value === ''
-                                  ? undefined
-                                  : Number(event.target.value),
+                                val === '' ? undefined : Number(val),
                               )
                             }
                           />
-                        </FormControl>
-                      </FormItem>
+                        </InputWrapper>
+                        {errors?.validation?.min?.message && (
+                          <p className="text-danger text-xs mt-1">
+                            {errors.validation.min.message as string}
+                          </p>
+                        )}
+                      </FormField>
                     )}
                   />
-                  <FormField
+                  <Controller
                     control={control}
                     name={`fields.${index}.validation.max`}
                     render={({ field }) => (
-                      <FormItem className="w-24">
-                        <FormLabel className="font-normal">Max</FormLabel>
-                        <FormControl>
+                      <FormField className="w-24">
+                        <label htmlFor={`max-${index}`} className="font-normal">
+                          Max
+                        </label>
+                        <InputWrapper>
                           <Input
+                            id={`max-${index}`}
                             type="number"
-                            value={(field.value as number | undefined) ?? ''}
-                            onChange={(event) =>
+                            value={(
+                              (field.value as number | undefined) ?? ''
+                            ).toString()}
+                            onChange={(val) =>
                               field.onChange(
-                                event.target.value === ''
-                                  ? undefined
-                                  : Number(event.target.value),
+                                val === '' ? undefined : Number(val),
                               )
                             }
                           />
-                        </FormControl>
-                      </FormItem>
+                        </InputWrapper>
+                        {errors?.validation?.max?.message && (
+                          <p className="text-danger text-xs mt-1">
+                            {errors.validation.max.message as string}
+                          </p>
+                        )}
+                      </FormField>
                     )}
                   />
                 </>
               ) : null}
 
               {showRegex ? (
-                <FormField
+                <Controller
                   control={control}
                   name={`fields.${index}.validation.regex`}
                   render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel className="font-normal">Regex</FormLabel>
-                      <FormControl>
+                    <FormField className="flex-1">
+                      <label htmlFor={`regex-${index}`} className="font-normal">
+                        Regex
+                      </label>
+                      <InputWrapper>
                         <Input
+                          id={`regex-${index}`}
                           placeholder="e.g. ^[a-z0-9-]+$"
                           value={(field.value as string | undefined) ?? ''}
-                          onChange={(event) =>
-                            field.onChange(
-                              event.target.value === ''
-                                ? undefined
-                                : event.target.value,
-                            )
+                          onChange={(val) =>
+                            field.onChange(val === '' ? undefined : val)
                           }
                         />
-                      </FormControl>
-                    </FormItem>
+                      </InputWrapper>
+                      {errors?.validation?.regex?.message && (
+                        <p className="text-danger text-xs mt-1">
+                          {errors.validation.regex.message as string}
+                        </p>
+                      )}
+                    </FormField>
                   )}
                 />
               ) : null}
@@ -263,7 +314,7 @@ export function FieldSettingsPanel({
         <div className="flex justify-end border-t pt-4">
           <Button
             type="button"
-            variant="destructive"
+            variant="danger"
             size="sm"
             onClick={() => onRemove(index)}
           >

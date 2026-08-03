@@ -56,14 +56,8 @@ export function FieldTypeInput({
         <Input
           type="number"
           disabled={disabled}
-          value={typeof value === 'number' ? value : ''}
-          onChange={(event) =>
-            onChange(
-              event.target.value === ''
-                ? undefined
-                : Number(event.target.value),
-            )
-          }
+          value={typeof value === 'number' ? value.toString() : ''}
+          onChange={(val) => onChange(val === '' ? undefined : Number(val))}
           {...rest}
         />
       );
@@ -74,13 +68,7 @@ export function FieldTypeInput({
           type="date"
           disabled={disabled}
           value={typeof value === 'string' ? value.slice(0, 10) : ''}
-          onChange={(event) =>
-            onChange(
-              event.target.value
-                ? new Date(event.target.value).toISOString()
-                : '',
-            )
-          }
+          onChange={(val) => onChange(val ? new Date(val).toISOString() : '')}
           {...rest}
         />
       );
@@ -91,13 +79,7 @@ export function FieldTypeInput({
           type="datetime-local"
           disabled={disabled}
           value={typeof value === 'string' ? value.slice(0, 16) : ''}
-          onChange={(event) =>
-            onChange(
-              event.target.value
-                ? new Date(event.target.value).toISOString()
-                : '',
-            )
-          }
+          onChange={(val) => onChange(val ? new Date(val).toISOString() : '')}
           {...rest}
         />
       );
@@ -113,7 +95,7 @@ export function FieldTypeInput({
               ? value
               : JSON.stringify(value ?? {}, null, 2)
           }
-          onChange={(event) => onChange(event.target.value)}
+          onChange={(val) => onChange(val)}
           {...rest}
         />
       );
@@ -128,7 +110,7 @@ export function FieldTypeInput({
           placeholder="UUID"
           disabled={disabled}
           value={typeof value === 'string' ? value : ''}
-          onChange={(event) => onChange(event.target.value)}
+          onChange={(val) => onChange(val)}
           {...rest}
         />
       );
@@ -147,7 +129,7 @@ export function FieldTypeInput({
           <Input
             disabled={disabled}
             value={typeof value === 'string' ? value : ''}
-            onChange={(event) => onChange(event.target.value)}
+            onChange={(val) => onChange(val)}
             {...rest}
           />
         );
@@ -179,7 +161,7 @@ export function FieldTypeInput({
           type="email"
           disabled={disabled}
           value={typeof value === 'string' ? value : ''}
-          onChange={(event) => onChange(event.target.value)}
+          onChange={(val) => onChange(val)}
           {...rest}
         />
       );
@@ -190,7 +172,7 @@ export function FieldTypeInput({
           type="url"
           disabled={disabled}
           value={typeof value === 'string' ? value : ''}
-          onChange={(event) => onChange(event.target.value)}
+          onChange={(val) => onChange(val)}
           {...rest}
         />
       );
@@ -201,7 +183,7 @@ export function FieldTypeInput({
         <Input
           disabled={disabled}
           value={typeof value === 'string' ? value : ''}
-          onChange={(event) => onChange(event.target.value)}
+          onChange={(val) => onChange(val)}
           {...rest}
         />
       );

@@ -98,7 +98,7 @@ export function ContentEntryForm({ schema, entry }: ContentEntryFormProps) {
   }
 
   return (
-    <Form {...form}>
+    <Form spacing="comfortable">
       <form
         onSubmit={(event) => void form.handleSubmit(onSubmit)(event)}
         className="grid gap-6 lg:grid-cols-[1fr_18rem]"
@@ -109,12 +109,13 @@ export function ContentEntryForm({ schema, entry }: ContentEntryFormProps) {
               key={field.apiId}
               field={field}
               control={form.control}
+              errors={form.formState.errors[field.apiId]}
             />
           ))}
         </div>
 
         <div className="grid gap-4">
-          <Card>
+          <Card className="shadow-sm border-muted/30">
             <CardHeader>
               <CardTitle className="text-sm">Publishing</CardTitle>
             </CardHeader>
@@ -129,7 +130,7 @@ export function ContentEntryForm({ schema, entry }: ContentEntryFormProps) {
           </Card>
 
           {entry ? (
-            <Card>
+            <Card className="shadow-sm border-muted/30 mt-4">
               <CardHeader>
                 <CardTitle className="text-sm">Versions</CardTitle>
               </CardHeader>
@@ -148,7 +149,7 @@ export function ContentEntryForm({ schema, entry }: ContentEntryFormProps) {
           ) : null}
 
           {submitError ? (
-            <p role="alert" className="text-destructive text-sm">
+            <p role="alert" className="text-danger text-sm">
               {submitError}
             </p>
           ) : null}
@@ -178,7 +179,7 @@ export function ContentEntryForm({ schema, entry }: ContentEntryFormProps) {
             {entry ? (
               <Button
                 type="button"
-                variant="destructive"
+                variant="danger"
                 disabled={deleteMutation.isPending}
                 onClick={() => deleteMutation.mutate()}
               >

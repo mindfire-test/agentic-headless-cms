@@ -26,6 +26,7 @@ export function FieldListItem({
   isSelected,
   onSelect,
   onRemove,
+  errors,
 }: FieldListItemProps<SchemaBuilderFieldValues>) {
   const {
     attributes,
@@ -66,6 +67,7 @@ export function FieldListItem({
       className={cn(
         'flex items-center gap-2 rounded-md border px-3 py-2 text-sm',
         isSelected ? 'border-primary bg-accent' : 'bg-card',
+        errors && 'border-danger bg-danger/10',
       )}
     >
       <button
@@ -87,10 +89,10 @@ export function FieldListItem({
           {displayName || `Field ${index + 1}`}
         </span>
         <span className="text-muted-foreground">{dataType}</span>
-        {isRequired ? <Badge variant="muted">*required</Badge> : null}
-        {isUnique ? <Badge variant="muted">unique</Badge> : null}
-        {isLocalized ? <Badge variant="muted">localized</Badge> : null}
-        {isRepeatable ? <Badge variant="muted">repeatable</Badge> : null}
+        {isRequired ? <Badge type="secondary" text="*required" /> : null}
+        {isUnique ? <Badge type="secondary" text="unique" /> : null}
+        {isLocalized ? <Badge type="secondary" text="localized" /> : null}
+        {isRepeatable ? <Badge type="secondary" text="repeatable" /> : null}
       </button>
 
       <Button

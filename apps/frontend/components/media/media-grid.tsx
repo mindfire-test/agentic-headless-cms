@@ -62,7 +62,7 @@ export function MediaGrid() {
 
   if (isError) {
     return (
-      <p role="alert" className="text-destructive text-sm">
+      <p role="alert" className="text-danger text-sm">
         Failed to load media.
       </p>
     );
@@ -90,7 +90,7 @@ export function MediaGrid() {
               <AssetThumbnail asset={asset} />
               <Button
                 type="button"
-                variant="destructive"
+                variant="danger"
                 size="icon"
                 className="absolute top-1 right-1 size-7"
                 aria-label={`Delete ${asset.filename}`}
@@ -146,7 +146,7 @@ export function MediaGrid() {
             : undefined
         }
         confirmLabel="Delete"
-        destructive
+        danger
         onConfirm={() => {
           if (pendingDelete) deleteMutation.mutate(pendingDelete.id);
         }}

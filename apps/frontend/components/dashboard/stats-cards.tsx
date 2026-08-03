@@ -30,10 +30,7 @@ export function StatsCards() {
           </CardHeader>
           <CardContent className="text-2xl font-semibold" aria-live="polite">
             {isError ? (
-              <span
-                role="alert"
-                className="text-destructive text-sm font-normal"
-              >
+              <span role="alert" className="text-danger text-sm font-normal">
                 Error
               </span>
             ) : isLoading ? (

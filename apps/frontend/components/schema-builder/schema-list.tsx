@@ -2,16 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { listSchemas } from '@/lib/api/schemas';
-import {
-  Card,
-  CardContent,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@repo/shared-ui';
+import { Card, CardContent, Table } from '@repo/shared-ui';
 
 export function SchemaList() {
   const { data, isLoading, isError } = useQuery({
@@ -27,7 +18,7 @@ export function SchemaList() {
 
   if (isError) {
     return (
-      <p role="alert" className="text-destructive text-sm">
+      <p role="alert" className="text-danger text-sm">
         Failed to load content types.
       </p>
     );
@@ -45,41 +36,31 @@ export function SchemaList() {
 
   return (
     <Card>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>API ID</TableHead>
-            <TableHead>Kind</TableHead>
-            <TableHead>Fields</TableHead>
-            <TableHead>Localized</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data.map((schema) => {
-            const isLocalized = schema.definition.fields.some(
-              (field) => field.isLocalized,
-            );
-            return (
-              <TableRow key={schema.id}>
-                <TableCell className="font-medium">{schema.name}</TableCell>
-                <TableCell className="text-muted-foreground">
-                  {schema.slug}
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {schema.type}
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {schema.definition.fields.length}
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {isLocalized ? 'Yes' : 'No'}
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+      <Table
+        headings={['Name', 'API ID', 'Kind', 'Fields', 'Localized']}
+        data={data.map((schema) => {
+          const isLocalized = schema.definition.fields.some(
+            (field) => field.isLocalized,
+          );
+          return [
+            <span key="name" className="font-medium">
+              {schema.name}
+            </span>,
+            <span key="slug" className="text-muted-foreground">
+              {schema.slug}
+            </span>,
+            <span key="type" className="text-muted-foreground">
+              {schema.type}
+            </span>,
+            <span key="fields" className="text-muted-foreground">
+              {schema.definition.fields.length}
+            </span>,
+            <span key="loc" className="text-muted-foreground">
+              {isLocalized ? 'Yes' : 'No'}
+            </span>,
+          ];
+        })}
+      />
     </Card>
   );
 }

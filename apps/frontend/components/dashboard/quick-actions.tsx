@@ -10,14 +10,14 @@ import { Button } from '@repo/shared-ui';
  */
 export function QuickActions() {
   return (
-    <div className="flex flex-wrap gap-2">
-      <Button asChild>
+    <div className="flex flex-col gap-3">
+      <Button asChild className="w-full justify-start h-11">
         <Link href="/content">+ New Entry</Link>
       </Button>
-      <Button asChild variant="outline">
+      <Button asChild variant="outline" className="w-full justify-start h-11">
         <Link href="/content-types/new">+ Content-Type</Link>
       </Button>
-      <Button asChild variant="outline">
+      <Button asChild variant="outline" className="w-full justify-start h-11">
         <Link href="/media">Upload Media</Link>
       </Button>
     </div>

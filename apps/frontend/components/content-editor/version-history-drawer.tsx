@@ -3,14 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { diffWordsWithSpace } from 'diff';
 import { useState } from 'react';
-import {
-  Button,
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@repo/shared-ui';
+import { Button, Drawer } from '@repo/shared-ui';
 import { listContentVersions, revertContentEntry } from '@/lib/api/content';
 import type { VersionHistoryDrawerProps } from '@/types/component.types';
 import { formatFieldValue } from '@/utils/lexical';
@@ -88,9 +81,7 @@ export function VersionHistoryDrawer({
       );
     if (isError)
       return (
-        <p className="text-destructive p-8 text-center">
-          Failed to load versions.
-        </p>
+        <p className="text-danger p-8 text-center">Failed to load versions.</p>
       );
     if (!versions || versions.length === 0)
       return (
@@ -173,19 +164,15 @@ export function VersionHistoryDrawer({
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        side="right"
-        className="w-[80vw] sm:max-w-[80vw] flex flex-col p-0 gap-0"
-      >
-        <SheetHeader className="p-4 border-b">
-          <SheetTitle>Version History</SheetTitle>
-          <SheetDescription>
-            Compare the current entry with previous versions.
-          </SheetDescription>
-        </SheetHeader>
-        <div className="flex-1 min-h-0 overflow-hidden">{renderContent()}</div>
-      </SheetContent>
-    </Sheet>
+    <Drawer
+      isOpen={open}
+      onClose={() => onOpenChange(false)}
+      position="right"
+      size="80vw"
+      title="Version History"
+      className="p-0 gap-0"
+    >
+      <div className="flex-1 min-h-0 overflow-hidden">{renderContent()}</div>
+    </Drawer>
   );
 }

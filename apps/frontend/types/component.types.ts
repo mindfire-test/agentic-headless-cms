@@ -31,6 +31,7 @@ export interface UsersTabProps {
 export interface DynamicFieldProps<T extends FieldValues = FieldValues> {
   field: SchemaField;
   control: Control<T>;
+  errors?: { message?: string } | Array<{ message?: string }> | undefined;
 }
 
 export interface FieldTypeInputProps {
@@ -69,12 +70,14 @@ export interface FieldListItemProps<T extends FieldValues = FieldValues> {
   isSelected: boolean;
   onSelect: (index: number) => void;
   onRemove: (index: number) => void;
+  errors?: { message?: string } | Array<{ message?: string }> | undefined;
 }
 
 export interface FieldSettingsPanelProps<T extends FieldValues = FieldValues> {
   index: number | null;
   control: Control<T>;
   onRemove: (index: number) => void;
+  errors?: { message?: string } | Array<{ message?: string }> | undefined;
 }
 
 export interface ConfirmDialogProps {
@@ -84,7 +87,7 @@ export interface ConfirmDialogProps {
   description?: string;
   confirmLabel?: string;
   cancelLabel?: string;
-  /** Styles the confirm action red — use for destructive actions like delete. */
-  destructive?: boolean;
+  /** Styles the confirm action red — use for danger actions like delete. */
+  danger?: boolean;
   onConfirm: () => void;
 }

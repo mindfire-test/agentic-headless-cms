@@ -25,7 +25,7 @@ export function ConfirmDialog({
   description,
   confirmLabel = 'Confirm',
   cancelLabel = 'Cancel',
-  destructive,
+  danger,
   onConfirm,
 }: ConfirmDialogProps) {
   return (
@@ -41,8 +41,8 @@ export function ConfirmDialog({
           <AlertDialogCancel>{cancelLabel}</AlertDialogCancel>
           <AlertDialogAction
             className={
-              destructive
-                ? 'bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20'
+              danger
+                ? 'bg-danger text-white shadow-xs hover:bg-danger/90 focus-visible:ring-danger/20'
                 : undefined
             }
             onClick={onConfirm}

@@ -21,7 +21,7 @@ export function RecentActivity() {
             Loading…
           </p>
         ) : isError ? (
-          <p role="alert" className="text-destructive text-sm">
+          <p role="alert" className="text-danger text-sm">
             Failed to load recent activity.
           </p>
         ) : !data || data.recentActivity.length === 0 ? (

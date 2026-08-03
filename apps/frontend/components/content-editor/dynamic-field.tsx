@@ -1,51 +1,47 @@
 'use client';
 
 import { PlusIcon, Trash2 } from 'lucide-react';
-import { type Control, useFieldArray, useFormContext } from 'react-hook-form';
+import { type Control, useFieldArray, Controller } from 'react-hook-form';
 
-import {
-  Button,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@repo/shared-ui';
+import { Button, FormField, InputWrapper } from '@repo/shared-ui';
 import type { DynamicFieldProps } from '@/types/component.types';
 import { FieldTypeInput } from './field-type-input';
 
-/** Renders one schema field: a single control, or (isRepeatable) an add/remove-able list of them. */
-export function DynamicField({ field, control }: DynamicFieldProps) {
+export function DynamicField({ field, control, errors }: DynamicFieldProps) {
   if (field.isRepeatable) {
-    return <RepeatableDynamicField field={field} control={control} />;
+    return (
+      <RepeatableDynamicField field={field} control={control} errors={errors} />
+    );
   }
 
   return (
-    <FormField
+    <Controller
       control={control}
       name={field.apiId}
       render={({ field: rhfField }) => (
-        <FormItem>
-          <FormLabel>
+        <FormField>
+          <label htmlFor={`field-${field.apiId}`}>
             {field.displayName}
             {field.isRequired ? ' *' : ''}
-          </FormLabel>
-          <FormControl>
+          </label>
+          <InputWrapper>
             <FieldTypeInput
+              id={`field-${field.apiId}`}
               field={field}
               value={rhfField.value}
               onChange={rhfField.onChange}
             />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
+          </InputWrapper>
+          {errors && !Array.isArray(errors) && errors.message && (
+            <p className="text-danger text-sm mt-1">{errors.message}</p>
+          )}
+        </FormField>
       )}
     />
   );
 }
 
-function RepeatableDynamicField({ field, control }: DynamicFieldProps) {
-  const { getFieldState } = useFormContext();
+function RepeatableDynamicField({ field, control, errors }: DynamicFieldProps) {
   // The generic Record<string, unknown> prevents useFieldArray from inferring ArrayPath.
   // We cast to Record<string, unknown[]> to bypass this; field.isRepeatable guarantees it at runtime.
   const arrayControl = control as unknown as Control<Record<string, unknown[]>>;
@@ -53,7 +49,6 @@ function RepeatableDynamicField({ field, control }: DynamicFieldProps) {
     control: arrayControl,
     name: field.apiId,
   });
-  const fieldState = getFieldState(field.apiId);
 
   return (
     <div className="grid gap-2">
@@ -64,19 +59,20 @@ function RepeatableDynamicField({ field, control }: DynamicFieldProps) {
 
       <div className="grid gap-2">
         {fieldArray.fields.map((item, index) => (
-          <FormField
+          <Controller
             key={item.id}
             control={control}
             name={`${field.apiId}.${index}`}
             render={({ field: rhfField }) => (
-              <FormItem className="flex flex-row items-start gap-2 space-y-0">
-                <FormControl>
+              <FormField className="flex flex-row items-start gap-2 space-y-0">
+                <InputWrapper className="flex-1">
                   <FieldTypeInput
+                    id={`field-${field.apiId}-${index}`}
                     field={field}
                     value={rhfField.value}
                     onChange={rhfField.onChange}
                   />
-                </FormControl>
+                </InputWrapper>
                 <Button
                   type="button"
                   variant="ghost"
@@ -86,7 +82,7 @@ function RepeatableDynamicField({ field, control }: DynamicFieldProps) {
                 >
                   <Trash2 className="size-4" />
                 </Button>
-              </FormItem>
+              </FormField>
             )}
           />
         ))}
@@ -105,11 +101,21 @@ function RepeatableDynamicField({ field, control }: DynamicFieldProps) {
         Add {field.displayName}
       </Button>
 
-      {fieldState.error?.root?.message ? (
-        <p role="alert" className="text-destructive text-sm">
-          {fieldState.error.root.message}
-        </p>
-      ) : null}
+      {errors && !Array.isArray(errors) && errors.message && (
+        <p className="text-danger text-sm mt-1">{errors.message}</p>
+      )}
+      {Array.isArray(errors) &&
+        errors.some((e: { message?: string }) => e?.message) && (
+          <div className="text-danger text-sm mt-1">
+            {errors.map((e: { message?: string }, i: number) =>
+              e?.message ? (
+                <p key={i}>
+                  Item {i + 1}: {e.message}
+                </p>
+              ) : null,
+            )}
+          </div>
+        )}
     </div>
   );
 }

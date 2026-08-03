@@ -22,7 +22,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { PlusIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { useFieldArray, useForm, Controller } from 'react-hook-form';
 
 import {
   Button,
@@ -31,11 +31,8 @@ import {
   CardHeader,
   CardTitle,
   Form,
-  FormControl,
   FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+  InputWrapper,
   Input,
   Select,
   SelectContent,
@@ -165,17 +162,26 @@ export function SchemaBuilderForm() {
         onSubmit={(event) => void form.handleSubmit(onSubmit)(event)}
         className="grid gap-6"
       >
-        <FormField
+        <Controller
           control={form.control}
           name="name"
           render={({ field }) => (
-            <FormItem className="max-w-sm">
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g. Blog Post" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+            <FormField>
+              <label htmlFor="name">Name</label>
+              <InputWrapper className="max-w-sm">
+                <Input
+                  id="name"
+                  placeholder="e.g. Blog Post"
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+              </InputWrapper>
+              {form.formState.errors.name?.message && (
+                <p className="text-danger text-sm mt-1">
+                  {form.formState.errors.name.message}
+                </p>
+              )}
+            </FormField>
           )}
         />
 
@@ -196,7 +202,7 @@ export function SchemaBuilderForm() {
               </div>
 
               {form.formState.errors.fields?.root?.message ? (
-                <p role="alert" className="text-destructive text-sm">
+                <p role="alert" className="text-danger text-sm">
                   {form.formState.errors.fields.root.message}
                 </p>
               ) : null}
@@ -220,6 +226,7 @@ export function SchemaBuilderForm() {
                         isSelected={selectedIndex === index}
                         onSelect={setSelectedIndex}
                         onRemove={handleRemoveField}
+                        errors={form.formState.errors?.fields?.[index]}
                       />
                     ))}
                   </div>
@@ -227,40 +234,47 @@ export function SchemaBuilderForm() {
               </DndContext>
             </div>
 
-            <Card>
+            <Card className="shadow-sm border-muted/30">
               <CardHeader>
                 <CardTitle className="text-sm">Type options</CardTitle>
               </CardHeader>
               <CardContent className="grid gap-4 sm:grid-cols-2">
-                <FormField
+                <Controller
                   control={form.control}
                   name="slug"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Slug</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. blog-post" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                    <FormField>
+                      <label htmlFor="slug">Slug</label>
+                      <InputWrapper>
+                        <Input
+                          id="slug"
+                          placeholder="e.g. blog-post"
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                      </InputWrapper>
+                      {form.formState.errors.slug?.message && (
+                        <p className="text-danger text-sm mt-1">
+                          {form.formState.errors.slug.message}
+                        </p>
+                      )}
+                    </FormField>
                   )}
                 />
 
-                <FormField
+                <Controller
                   control={form.control}
                   name="type"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Kind</FormLabel>
+                    <FormField>
+                      <label htmlFor="type">Kind</label>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
                       >
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
+                        <SelectTrigger id="type" className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
                         <SelectContent>
                           {schemaTypeValues.map((type) => (
                             <SelectItem key={type} value={type}>
@@ -269,8 +283,12 @@ export function SchemaBuilderForm() {
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
-                    </FormItem>
+                      {form.formState.errors.type?.message && (
+                        <p className="text-danger text-sm mt-1">
+                          {form.formState.errors.type.message as string}
+                        </p>
+                      )}
+                    </FormField>
                   )}
                 />
               </CardContent>
@@ -281,11 +299,16 @@ export function SchemaBuilderForm() {
             index={selectedIndex}
             control={form.control}
             onRemove={handleRemoveField}
+            errors={
+              selectedIndex !== null
+                ? form.formState.errors?.fields?.[selectedIndex]
+                : undefined
+            }
           />
         </div>
 
         {submitError ? (
-          <p role="alert" className="text-destructive text-sm">
+          <p role="alert" className="text-danger text-sm">
             {submitError}
           </p>
         ) : null}

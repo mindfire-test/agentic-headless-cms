@@ -15,7 +15,7 @@ export function SchemaEntryListView({ schemaSlug }: { schemaSlug: string }) {
 
   if (isError || !schema) {
     return (
-      <p role="alert" className="text-destructive text-sm">
+      <p role="alert" className="text-danger text-sm">
         Content type &quot;{schemaSlug}&quot; was not found.
       </p>
     );

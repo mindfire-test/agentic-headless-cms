@@ -9,18 +9,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
-import {
-  Button,
-  Checkbox,
-  Input,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Textarea,
-} from '@repo/shared-ui';
+import { Button, Checkbox, Input, Table, Textarea } from '@repo/shared-ui';
 import { createRole, listRoles, updateRole } from '@/lib/api/access';
 import { listSchemas } from '@/lib/api/schemas';
 
@@ -246,7 +235,7 @@ function RoleDetails({
           <label className="text-sm font-medium">Role Name</label>
           <Input
             value={activeRole.name || ''}
-            onChange={(e) => onUpdateRole({ name: e.target.value })}
+            onChange={(val) => onUpdateRole({ name: val })}
             placeholder="e.g. Content Editor"
           />
         </div>
@@ -254,7 +243,7 @@ function RoleDetails({
           <label className="text-sm font-medium">Description</label>
           <Input
             value={activeRole.description || ''}
-            onChange={(e) => onUpdateRole({ description: e.target.value })}
+            onChange={(val) => onUpdateRole({ description: val })}
             placeholder="Optional description"
           />
         </div>
@@ -263,65 +252,49 @@ function RoleDetails({
       <div className="space-y-4">
         <h3 className="font-medium">Permissions per content-type</h3>
         <div className="border rounded-md overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Type</TableHead>
-                <TableHead className="text-center">Read</TableHead>
-                <TableHead className="text-center">Create</TableHead>
-                <TableHead className="text-center">Update</TableHead>
-                <TableHead className="text-center">Delete</TableHead>
-                <TableHead className="text-center">Publish</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {schemas.map((schema) => (
-                <TableRow key={schema.id}>
-                  <TableCell>{schema.name}</TableCell>
-                  <TableCell className="text-center">
-                    <Checkbox
-                      checked={hasPermission(schema.id, 'read')}
-                      onCheckedChange={() =>
-                        onTogglePermission(schema.id, 'read')
-                      }
-                    />
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <Checkbox
-                      checked={hasPermission(schema.id, 'create')}
-                      onCheckedChange={() =>
-                        onTogglePermission(schema.id, 'create')
-                      }
-                    />
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <Checkbox
-                      checked={hasPermission(schema.id, 'update')}
-                      onCheckedChange={() =>
-                        onTogglePermission(schema.id, 'update')
-                      }
-                    />
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <Checkbox
-                      checked={hasPermission(schema.id, 'delete')}
-                      onCheckedChange={() =>
-                        onTogglePermission(schema.id, 'delete')
-                      }
-                    />
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <Checkbox
-                      checked={hasPermission(schema.id, 'publish')}
-                      onCheckedChange={() =>
-                        onTogglePermission(schema.id, 'publish')
-                      }
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <Table
+            headings={[
+              'Type',
+              { label: 'Read', key: 'read' },
+              { label: 'Create', key: 'create' },
+              { label: 'Update', key: 'update' },
+              { label: 'Delete', key: 'delete' },
+              { label: 'Publish', key: 'publish' },
+            ]}
+            data={schemas.map((schema) => [
+              schema.name,
+              <div key="read" className="flex justify-center">
+                <Checkbox
+                  checked={hasPermission(schema.id, 'read')}
+                  onChange={() => onTogglePermission(schema.id, 'read')}
+                />
+              </div>,
+              <div key="create" className="flex justify-center">
+                <Checkbox
+                  checked={hasPermission(schema.id, 'create')}
+                  onChange={() => onTogglePermission(schema.id, 'create')}
+                />
+              </div>,
+              <div key="update" className="flex justify-center">
+                <Checkbox
+                  checked={hasPermission(schema.id, 'update')}
+                  onChange={() => onTogglePermission(schema.id, 'update')}
+                />
+              </div>,
+              <div key="delete" className="flex justify-center">
+                <Checkbox
+                  checked={hasPermission(schema.id, 'delete')}
+                  onChange={() => onTogglePermission(schema.id, 'delete')}
+                />
+              </div>,
+              <div key="publish" className="flex justify-center">
+                <Checkbox
+                  checked={hasPermission(schema.id, 'publish')}
+                  onChange={() => onTogglePermission(schema.id, 'publish')}
+                />
+              </div>,
+            ])}
+          />
         </div>
       </div>
 

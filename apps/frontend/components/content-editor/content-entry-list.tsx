@@ -10,18 +10,7 @@ import {
 import Link from 'next/link';
 import { useState } from 'react';
 
-import {
-  Button,
-  Card,
-  CardContent,
-  Input,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@repo/shared-ui';
+import { Button, Card, CardContent, Input, Table } from '@repo/shared-ui';
 import { deleteContentEntry, listContentEntries } from '@/lib/api/content';
 import type { ContentEntryListProps } from '@/types/component.types';
 
@@ -74,7 +63,7 @@ export function ContentEntryList({ schema }: ContentEntryListProps) {
 
   if (isError) {
     return (
-      <p role="alert" className="text-destructive text-sm">
+      <p role="alert" className="text-danger text-sm">
         Failed to load entries.
       </p>
     );
@@ -90,8 +79,8 @@ export function ContentEntryList({ schema }: ContentEntryListProps) {
           <Input
             placeholder={`Search by ${titleField.displayName}…`}
             value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
+            onChange={(val) => {
+              setSearch(val);
               setPage(1);
             }}
             className="max-w-xs"
@@ -119,51 +108,40 @@ export function ContentEntryList({ schema }: ContentEntryListProps) {
         </Card>
       ) : (
         <Card>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{titleField?.displayName ?? 'Entry'}</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Updated</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {entries.map((entry) => (
-                <TableRow key={entry.id}>
-                  <TableCell className="font-medium">
-                    {titleField &&
-                    typeof entry.data[titleField.apiId] === 'string'
-                      ? (entry.data[titleField.apiId] as string)
-                      : entry.id}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground capitalize">
-                    {entry.status}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {entry.updatedAt
-                      ? new Date(entry.updatedAt).toLocaleString()
-                      : '—'}
-                  </TableCell>
-                  <TableCell className="flex justify-end gap-2 text-right">
-                    <Button asChild variant="ghost" size="sm">
-                      <Link href={`/content/${schema.slug}/${entry.id}`}>
-                        Edit
-                      </Link>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      disabled={deleteMutation.isPending}
-                      onClick={() => deleteMutation.mutate(entry.id)}
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <Table
+            headings={[
+              titleField?.displayName ?? 'Entry',
+              'Status',
+              'Updated',
+              { label: 'Actions', key: 'actions' },
+            ]}
+            data={entries.map((entry) => [
+              titleField && typeof entry.data[titleField.apiId] === 'string'
+                ? (entry.data[titleField.apiId] as string)
+                : entry.id,
+              <span key="status" className="capitalize text-muted-foreground">
+                {entry.status}
+              </span>,
+              <span key="updated" className="text-muted-foreground">
+                {entry.updatedAt
+                  ? new Date(entry.updatedAt).toLocaleString()
+                  : '—'}
+              </span>,
+              <div key="actions" className="flex justify-end gap-2 text-right">
+                <Button asChild variant="ghost" size="sm">
+                  <Link href={`/content/${schema.slug}/${entry.id}`}>Edit</Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={deleteMutation.isPending}
+                  onClick={() => deleteMutation.mutate(entry.id)}
+                >
+                  Delete
+                </Button>
+              </div>,
+            ])}
+          />
         </Card>
       )}
 

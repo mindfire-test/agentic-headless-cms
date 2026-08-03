@@ -6,24 +6,14 @@ import { toast } from 'sonner';
 
 import {
   Button,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
   Input,
-  Label,
+  Modal,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
   Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
 } from '@repo/shared-ui';
 import { inviteUser, listRoles, listUsers } from '@/lib/api/access';
 import { UsersTabProps } from '@/types/component.types';
@@ -68,8 +58,8 @@ export function UsersTab({ isAdmin = false }: UsersTabProps) {
     },
   });
 
-  const handleInvite = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleInvite = (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (!email || !roleId) {
       toast.error('Email and Role are required');
       return;
@@ -87,145 +77,108 @@ export function UsersTab({ isAdmin = false }: UsersTabProps) {
     <div className="space-y-4">
       {isAdmin && (
         <div className="flex justify-end">
-          <Dialog open={isInviteOpen} onOpenChange={setIsInviteOpen}>
-            <DialogTrigger asChild>
-              <Button>+ Invite User</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Invite User</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleInvite} className="space-y-4 pt-4">
+          <Button onClick={() => setIsInviteOpen(true)}>+ Invite User</Button>
+          <Modal
+            isOpen={isInviteOpen}
+            onClose={() => setIsInviteOpen(false)}
+            title="Invite User"
+            confirmText={
+              inviteMutation.isPending ? 'Sending...' : 'Send Invite'
+            }
+            onConfirm={() => handleInvite()}
+            onCancel={() => setIsInviteOpen(false)}
+          >
+            <form onSubmit={handleInvite} className="space-y-4 pt-4">
+              <div className="space-y-2">
+                <label htmlFor="email">Email *</label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={setEmail}
+                  placeholder="user@example.com"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email *</Label>
+                  <label htmlFor="firstName">First Name</label>
                   <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="user@example.com"
-                    required
+                    id="firstName"
+                    value={firstName}
+                    onChange={setFirstName}
+                    placeholder="John"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName">First Name</Label>
-                    <Input
-                      id="firstName"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="John"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input
-                      id="lastName"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Doe"
-                    />
-                  </div>
-                </div>
                 <div className="space-y-2">
-                  <Label htmlFor="role">Role *</Label>
-                  <Select value={roleId} onValueChange={setRoleId}>
-                    <SelectTrigger id="role">
-                      <SelectValue placeholder="Select a role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {roles.map((r) => (
-                        <SelectItem key={r.id} value={r.id}>
-                          {r.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex justify-end gap-2 pt-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setIsInviteOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={inviteMutation.isPending || !email || !roleId}
-                  >
-                    {inviteMutation.isPending ? 'Sending...' : 'Send Invite'}
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
-
-          {/* Dev Mode Notification Modal */}
-          <Dialog
-            open={!!devInviteUrl}
-            onOpenChange={(open) => !open && setDevInviteUrl(null)}
-          >
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Development Mode: Invite Link</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 pt-4">
-                <p className="text-sm text-muted-foreground">
-                  Since SMTP is not configured in development, you can use this
-                  link to accept the invitation:
-                </p>
-                <Input readOnly value={devInviteUrl || ''} />
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      navigator.clipboard.writeText(devInviteUrl || '');
-                      toast.success('Copied to clipboard');
-                    }}
-                  >
-                    Copy Link
-                  </Button>
-                  <Button onClick={() => setDevInviteUrl(null)}>Close</Button>
+                  <label htmlFor="lastName">Last Name</label>
+                  <Input
+                    id="lastName"
+                    value={lastName}
+                    onChange={setLastName}
+                    placeholder="Doe"
+                  />
                 </div>
               </div>
-            </DialogContent>
-          </Dialog>
+              <div className="space-y-2">
+                <label htmlFor="role">Role *</label>
+                <Select value={roleId} onValueChange={setRoleId}>
+                  <SelectTrigger id="role">
+                    <SelectValue placeholder="Select a role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {roles.map((r) => (
+                      <SelectItem key={r.id} value={r.id}>
+                        {r.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </form>
+          </Modal>
+
+          {/* Dev Mode Notification Modal */}
+          <Modal
+            isOpen={!!devInviteUrl}
+            onClose={() => setDevInviteUrl(null)}
+            title="Development Mode: Invite Link"
+            confirmText="Close"
+            onConfirm={() => setDevInviteUrl(null)}
+          >
+            <div className="space-y-4 pt-4">
+              <p className="text-sm text-muted-foreground">
+                Since SMTP is not configured in development, you can use this
+                link to accept the invitation:
+              </p>
+              <Input value={devInviteUrl || ''} />
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    navigator.clipboard.writeText(devInviteUrl || '');
+                    toast.success('Copied to clipboard');
+                  }}
+                >
+                  Copy Link
+                </Button>
+              </div>
+            </div>
+          </Modal>
         </div>
       )}
 
       <div className="border rounded-md overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Email</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Created At</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>
-                  {user.firstName} {user.lastName}
-                </TableCell>
-                <TableCell className="capitalize">{user.status}</TableCell>
-                <TableCell>
-                  {new Date(user.createdAt).toLocaleDateString()}
-                </TableCell>
-              </TableRow>
-            ))}
-            {users.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center">
-                  No users found.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+        <Table
+          headings={['Email', 'Name', 'Status', 'Created At']}
+          data={users.map((user) => [
+            user.email,
+            `${user.firstName} ${user.lastName}`,
+            <span key="status" className="capitalize">
+              {user.status}
+            </span>,
+            new Date(user.createdAt).toLocaleDateString(),
+          ])}
+        />
       </div>
     </div>
   );

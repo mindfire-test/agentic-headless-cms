@@ -4,18 +4,15 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { loginSchema, type LoginInput } from '@repo/shared-types';
 
 import {
   Button,
   Checkbox,
   Form,
-  FormControl,
   FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+  InputWrapper,
   Input,
   Separator,
 } from '@repo/shared-ui';
@@ -47,79 +44,95 @@ export function LoginForm() {
   }
 
   function handleSsoLogin() {
-    // Route issue #12 (or a later SSO/OIDC-specific issue — the SRS's
-    // FR-AC-4 scopes SSO separately from #12's JWT-only auth) is planned
-    // to add: GET /api/v1/auth/sso, which redirects to the configured
-    // identity provider.
     window.location.href = `${API_BASE_URL}/api/v1/auth/sso`;
   }
 
   return (
-    <Form {...form}>
+    <Form spacing="comfortable">
       <form
         onSubmit={(event) => void form.handleSubmit(onSubmit)(event)}
-        className="grid gap-4"
+        className="grid gap-4 w-full"
       >
-        <FormField
+        <Controller
           control={form.control}
           name="email"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
+            <FormField>
+              <label htmlFor="email">Email</label>
+              <InputWrapper>
                 <Input
+                  id="email"
                   type="email"
                   autoComplete="email"
                   placeholder="you@example.com"
-                  {...field}
+                  value={field.value}
+                  onChange={field.onChange}
                 />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+              </InputWrapper>
+              {form.formState.errors.email?.message && (
+                <p className="text-danger text-sm mt-1">
+                  {form.formState.errors.email.message}
+                </p>
+              )}
+            </FormField>
           )}
         />
 
-        <FormField
+        <Controller
           control={form.control}
           name="password"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
+            <FormField>
+              <label htmlFor="password">Password</label>
+              <InputWrapper>
                 <Input
+                  id="password"
                   type="password"
                   autoComplete="current-password"
-                  {...field}
+                  value={field.value}
+                  onChange={field.onChange}
                 />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+              </InputWrapper>
+              {form.formState.errors.password?.message && (
+                <p className="text-danger text-sm mt-1">
+                  {form.formState.errors.password.message}
+                </p>
+              )}
+            </FormField>
           )}
         />
 
-        <FormField
+        <Controller
           control={form.control}
           name="rememberMe"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-center gap-2 space-y-0">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <FormLabel className="font-normal">Remember me</FormLabel>
-            </FormItem>
+            <FormField className="flex flex-row items-center gap-2 space-y-0">
+              <Checkbox
+                id="rememberMe"
+                checked={field.value}
+                onChange={field.onChange}
+              />
+              <label
+                htmlFor="rememberMe"
+                className="font-normal !mb-0 cursor-pointer"
+              >
+                Remember me
+              </label>
+            </FormField>
           )}
         />
 
         {submitError ? (
-          <p role="alert" className="text-destructive text-sm">
+          <p role="alert" className="text-danger text-sm">
             {submitError}
           </p>
         ) : null}
 
-        <Button type="submit" disabled={form.formState.isSubmitting}>
+        <Button
+          type="submit"
+          disabled={form.formState.isSubmitting}
+          className="w-full h-11 text-base transition-transform hover:scale-[1.02] active:scale-95"
+        >
           {form.formState.isSubmitting ? 'Signing in…' : 'Sign in'}
         </Button>
 
@@ -129,7 +142,12 @@ export function LoginForm() {
           <Separator className="flex-1" />
         </div>
 
-        <Button type="button" variant="outline" onClick={handleSsoLogin}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleSsoLogin}
+          className="w-full"
+        >
           Sign in with SSO / OIDC
         </Button>
 

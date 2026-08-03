@@ -20,7 +20,7 @@ export function ContentTypeList() {
 
   if (isError) {
     return (
-      <p role="alert" className="text-destructive text-sm">
+      <p role="alert" className="text-danger text-sm">
         Failed to load content types.
       </p>
     );
@@ -41,8 +41,10 @@ export function ContentTypeList() {
       {data.map((schema) => (
         <Link key={schema.id} href={`/content/${schema.slug}`}>
           <Card className="hover:border-primary/50 transition-colors">
-            <CardHeader>
-              <CardTitle>{schema.name}</CardTitle>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg font-semibold truncate leading-tight">
+                {schema.name}
+              </CardTitle>
             </CardHeader>
             <CardContent className="text-muted-foreground text-sm">
               {schema.definition.fields.length} field

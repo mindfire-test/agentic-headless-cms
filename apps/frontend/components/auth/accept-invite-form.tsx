@@ -80,24 +80,24 @@ export function AcceptInviteForm() {
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl text-center">
+    <Card className="w-full shadow-2xl border-muted/30 rounded-2xl overflow-hidden backdrop-blur-sm bg-background/95 transition-all hover:shadow-primary/5">
+      <CardHeader className="text-center pt-8 pb-4 space-y-3">
+        <CardTitle className="text-2xl font-bold tracking-tight">
           Set your password
         </CardTitle>
-        <CardDescription className="text-center">
+        <CardDescription className="text-sm font-medium">
           Please set a password to activate your account.
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6 px-8 pb-8">
           <div className="space-y-2">
             <Label htmlFor="password">New Password</Label>
             <Input
               id="password"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(val) => setPassword(val)}
               required
               minLength={8}
             />
@@ -108,14 +108,18 @@ export function AcceptInviteForm() {
               id="confirmPassword"
               type="password"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={(val) => setConfirmPassword(val)}
               required
               minLength={8}
             />
           </div>
         </CardContent>
-        <CardFooter>
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <CardFooter className="px-8 pb-8 pt-0">
+          <Button
+            type="submit"
+            className="w-full h-11 text-base transition-transform hover:scale-[1.02] active:scale-95"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? 'Activating...' : 'Activate Account'}
           </Button>
         </CardFooter>
