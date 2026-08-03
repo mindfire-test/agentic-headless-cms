@@ -13,6 +13,7 @@
     }
   },
   "scripts": {
+    "build": "tsc",
     "check-types": "tsc --noEmit",
     "lint": "eslint src --ext .ts,.tsx",
     "test": "vitest run --passWithNoTests"
