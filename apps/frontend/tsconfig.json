@@ -9,7 +9,9 @@
     "strictNullChecks": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@repo/shared-ui": ["../../packages/shared-ui/src/index.ts"],
+      "@repo/shared-ui/*": ["../../packages/shared-ui/src/*"]
     }
   },
   "include": [
