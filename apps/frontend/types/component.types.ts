@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import type { Control, FieldValues } from 'react-hook-form';
+import type { Control, FieldValues, FieldErrors } from 'react-hook-form';
 import type {
   createSchemaSchema,
   ContentEntryRecord,
@@ -70,14 +70,14 @@ export interface FieldListItemProps<T extends FieldValues = FieldValues> {
   isSelected: boolean;
   onSelect: (index: number) => void;
   onRemove: (index: number) => void;
-  errors?: { message?: string } | Array<{ message?: string }> | undefined;
+  errors?: FieldErrors<SchemaField>;
 }
 
 export interface FieldSettingsPanelProps<T extends FieldValues = FieldValues> {
   index: number | null;
   control: Control<T>;
   onRemove: (index: number) => void;
-  errors?: { message?: string } | Array<{ message?: string }> | undefined;
+  errors?: FieldErrors<SchemaField>;
 }
 
 export interface ConfirmDialogProps {
