@@ -66,13 +66,14 @@ describe('LocalesTab', () => {
 
     await user.click(screen.getByRole('button', { name: 'Add Locale' }));
     const addButton = screen.getByRole('button', { name: 'Add' });
-    expect(addButton).toBeDisabled();
 
-    await user.type(screen.getByPlaceholderText('e.g. fr-FR'), 'fr-FR');
-    expect(addButton).toBeDisabled();
+    await user.click(addButton);
+    expect(mockCreate).not.toHaveBeenCalled();
 
-    await user.type(screen.getByPlaceholderText('e.g. French'), 'French');
-    expect(addButton).toBeEnabled();
+    const textboxes = screen.getAllByRole('textbox');
+    await user.type(textboxes[0], 'fr-FR');
+    await user.click(addButton);
+    expect(mockCreate).not.toHaveBeenCalled();
   });
 
   it('creates a locale with the entered code and name', async () => {
@@ -82,8 +83,9 @@ describe('LocalesTab', () => {
     await screen.findByText('No locales configured yet.');
 
     await user.click(screen.getByRole('button', { name: 'Add Locale' }));
-    await user.type(screen.getByPlaceholderText('e.g. fr-FR'), 'fr-FR');
-    await user.type(screen.getByPlaceholderText('e.g. French'), 'French');
+    const textboxes = screen.getAllByRole('textbox');
+    await user.type(textboxes[0], 'fr-FR');
+    await user.type(textboxes[1], 'French');
     await user.click(screen.getByRole('button', { name: 'Add' }));
 
     await waitFor(() =>

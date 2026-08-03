@@ -105,12 +105,10 @@ describe('ContentEntryList', () => {
     renderList();
 
     await waitFor(() => {
-      expect(
-        screen.getByPlaceholderText(/search by title/i),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('textbox')).toBeInTheDocument();
     });
 
-    await user.type(screen.getByPlaceholderText(/search by title/i), 'World');
+    await user.type(screen.getByRole('textbox'), 'World');
 
     await waitFor(() => {
       const lastCall = mockList.mock.calls.at(-1)!;

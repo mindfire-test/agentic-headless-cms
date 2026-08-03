@@ -100,10 +100,8 @@ describe('TokensTab', () => {
     await screen.findByText('No tokens generated yet.');
 
     await user.click(screen.getByRole('button', { name: 'Generate Token' }));
-    await user.type(
-      screen.getByPlaceholderText('e.g. CI/CD Script'),
-      'My New Token',
-    );
+    const textboxes = screen.getAllByRole('textbox');
+    await user.type(textboxes[0], 'My New Token');
     await user.selectOptions(screen.getByRole('combobox'), 'role-admin');
     await user.click(screen.getByRole('button', { name: 'Generate' }));
 

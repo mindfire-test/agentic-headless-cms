@@ -69,20 +69,21 @@ describe('WebhooksTable', () => {
 
     await user.click(screen.getByRole('button', { name: 'Register Webhook' }));
     const registerButton = screen.getByRole('button', { name: 'Register' });
-    expect(registerButton).toBeDisabled();
 
-    await user.type(
-      screen.getByPlaceholderText('e.g. Next.js ISR Rebuild'),
-      'My Hook',
-    );
-    await user.type(
-      screen.getByPlaceholderText('https://example.com/api/revalidate'),
-      'https://example.com/hook',
-    );
-    expect(registerButton).toBeDisabled();
+    await user.click(registerButton);
+    expect(mockCreate).not.toHaveBeenCalled();
+
+    const textboxes = screen.getAllByRole('textbox');
+    await user.type(textboxes[0], 'My Hook');
+    await user.type(textboxes[1], 'https://example.com/hook');
+
+    await user.click(registerButton);
+    expect(mockCreate).not.toHaveBeenCalled(); // No event selected yet
 
     await user.click(screen.getByText('content.published'));
-    expect(registerButton).toBeEnabled();
+
+    await user.click(registerButton);
+    await waitFor(() => expect(mockCreate).toHaveBeenCalled());
   });
 
   it('registers a webhook with the selected events', async () => {
@@ -92,14 +93,9 @@ describe('WebhooksTable', () => {
     await screen.findByText('No webhooks registered yet.');
 
     await user.click(screen.getByRole('button', { name: 'Register Webhook' }));
-    await user.type(
-      screen.getByPlaceholderText('e.g. Next.js ISR Rebuild'),
-      'My Hook',
-    );
-    await user.type(
-      screen.getByPlaceholderText('https://example.com/api/revalidate'),
-      'https://example.com/hook',
-    );
+    const textboxes = screen.getAllByRole('textbox');
+    await user.type(textboxes[0], 'My Hook');
+    await user.type(textboxes[1], 'https://example.com/hook');
     await user.click(screen.getByText('content.published'));
     await user.click(screen.getByRole('button', { name: 'Register' }));
 

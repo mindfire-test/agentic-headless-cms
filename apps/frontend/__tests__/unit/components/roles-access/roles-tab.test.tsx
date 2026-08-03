@@ -83,10 +83,8 @@ describe('RolesTab', () => {
     renderTab();
     await screen.findByText('New Role');
 
-    await user.type(
-      screen.getByPlaceholderText('e.g. Content Editor'),
-      'Reviewer',
-    );
+    const textboxes = screen.getAllByRole('textbox');
+    await user.type(textboxes[0], 'Reviewer');
     const row = screen.getByRole('row', { name: /Blog Post/ });
     await user.click(within(row).getAllByRole('checkbox')[0]!);
     await user.click(screen.getByRole('button', { name: 'Save Role' }));

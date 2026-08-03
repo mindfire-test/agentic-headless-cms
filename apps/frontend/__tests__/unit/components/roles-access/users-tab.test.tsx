@@ -81,6 +81,8 @@ describe('UsersTab', () => {
       await screen.findByRole('button', { name: '+ Invite User' }),
     );
 
-    expect(screen.getByRole('button', { name: 'Send Invite' })).toBeDisabled();
+    const sendButton = screen.getByRole('button', { name: 'Send Invite' });
+    await user2.click(sendButton);
+    expect(mockInviteUser).not.toHaveBeenCalled();
   });
 });

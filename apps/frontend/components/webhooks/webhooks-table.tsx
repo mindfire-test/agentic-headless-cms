@@ -31,7 +31,8 @@ export function WebhooksTable() {
   });
 
   const createMutation = useMutation({
-    mutationFn: () => createWebhook({ name, url, events }),
+    mutationFn: (data: { name: string; url: string; events: string[] }) =>
+      createWebhook(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['webhooks'] });
       closeDialog();
@@ -76,7 +77,7 @@ export function WebhooksTable() {
           confirmText={createMutation.isPending ? 'Registering...' : 'Register'}
           onConfirm={() => {
             if (name && url && events.length > 0 && !createMutation.isPending) {
-              createMutation.mutate();
+              createMutation.mutate({ name, url, events });
             }
           }}
           onCancel={closeDialog}
@@ -120,38 +121,47 @@ export function WebhooksTable() {
       </div>
 
       <div className="border rounded-md overflow-x-auto">
-        <Table
-          headings={['Name', 'URL', 'Events', 'Status', 'Actions']}
-          data={webhooks.map((webhook) => [
-            webhook.name,
-            <span key="url" className="max-w-xs truncate font-mono text-xs">
-              {webhook.url}
-            </span>,
-            <span key="events" className="text-xs text-muted-foreground">
-              {webhook.events.join(', ')}
-            </span>,
-            webhook.isActive ? (
-              <span key="status" className="text-green-500 font-medium">
-                Active
-              </span>
-            ) : (
-              <span key="status" className="text-muted-foreground font-medium">
-                Inactive
-              </span>
-            ),
-            <div key="actions" className="flex justify-end">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-red-500 hover:text-red-600"
-                onClick={() => setPendingDelete(webhook)}
-                title="Delete Webhook"
-              >
-                <Trash2 className="size-4" />
-              </Button>
-            </div>,
-          ])}
-        />
+        {webhooks.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            No webhooks registered yet.
+          </div>
+        ) : (
+          <Table
+            headings={['Name', 'URL', 'Events', 'Status', 'Actions']}
+            data={webhooks.map((webhook) => [
+              webhook.name,
+              <span key="url" className="max-w-xs truncate font-mono text-xs">
+                {webhook.url}
+              </span>,
+              <span key="events" className="text-xs text-muted-foreground">
+                {webhook.events.join(', ')}
+              </span>,
+              webhook.isActive ? (
+                <span key="status" className="text-green-500 font-medium">
+                  Active
+                </span>
+              ) : (
+                <span
+                  key="status"
+                  className="text-muted-foreground font-medium"
+                >
+                  Inactive
+                </span>
+              ),
+              <div key="actions" className="flex justify-end">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-red-500 hover:text-red-600"
+                  onClick={() => setPendingDelete(webhook)}
+                  title="Delete Webhook"
+                >
+                  <Trash2 className="size-4" />
+                </Button>
+              </div>,
+            ])}
+          />
+        )}
       </div>
 
       <ConfirmDialog

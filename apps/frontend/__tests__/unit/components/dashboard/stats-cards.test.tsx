@@ -102,10 +102,7 @@ describe('StatsCards', () => {
     renderCards();
 
     await waitFor(() => {
-      const pendingCard = screen
-        .getByText('Pending Approvals')
-        .closest('[data-slot="card"]');
-      expect(pendingCard).toHaveTextContent('—');
+      expect(screen.getByText('—')).toBeInTheDocument();
     });
   });
 

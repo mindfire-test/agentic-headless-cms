@@ -21,7 +21,7 @@ export function LocalesTab() {
   });
 
   const createMutation = useMutation({
-    mutationFn: () => createLocale({ code, name }),
+    mutationFn: (data: { code: string; name: string }) => createLocale(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['locales'] });
       closeDialog();
@@ -57,9 +57,10 @@ export function LocalesTab() {
           onClose={closeDialog}
           title="Add Locale"
           confirmText={createMutation.isPending ? 'Adding...' : 'Add'}
+          confirmDisabled={!code || !name || createMutation.isPending}
           onConfirm={() => {
             if (code && name && !createMutation.isPending) {
-              createMutation.mutate();
+              createMutation.mutate({ code, name });
             }
           }}
           onCancel={closeDialog}
@@ -82,27 +83,33 @@ export function LocalesTab() {
       </div>
 
       <div className="border rounded-md overflow-x-auto">
-        <Table
-          headings={['Code', 'Name', 'Default', 'Actions']}
-          data={locales.map((locale) => [
-            <span key="code" className="font-mono text-xs">
-              {locale.code}
-            </span>,
-            locale.name,
-            locale.isDefault ? 'Yes' : '',
-            <div key="actions" className="flex justify-end">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-red-500 hover:text-red-600"
-                onClick={() => setPendingDelete(locale)}
-                title="Delete Locale"
-              >
-                <Trash2 className="size-4" />
-              </Button>
-            </div>,
-          ])}
-        />
+        {locales.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            No locales configured yet.
+          </div>
+        ) : (
+          <Table
+            headings={['Code', 'Name', 'Default', 'Actions']}
+            data={locales.map((locale) => [
+              <span key="code" className="font-mono text-xs">
+                {locale.code}
+              </span>,
+              locale.name,
+              locale.isDefault ? 'Yes' : '',
+              <div key="actions" className="flex justify-end">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-red-500 hover:text-red-600"
+                  onClick={() => setPendingDelete(locale)}
+                  title="Delete Locale"
+                >
+                  <Trash2 className="size-4" />
+                </Button>
+              </div>,
+            ])}
+          />
+        )}
       </div>
 
       <ConfirmDialog
