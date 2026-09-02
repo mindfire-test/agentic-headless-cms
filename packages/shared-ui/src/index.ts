@@ -16,3 +16,4 @@ export * from './components/ui/tabs';
 export { default as Textarea } from './components/ui/textarea';
 export * from './components/ui/textarea';
 export * from './components/ui/typography';
+export * from './components/ui/toast';
