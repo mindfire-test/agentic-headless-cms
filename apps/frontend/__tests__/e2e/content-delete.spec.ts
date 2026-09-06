@@ -3,7 +3,7 @@ import { API_PATHS } from '@/lib/constants/api-paths';
 import { test, expect } from '@playwright/test';
 import { BACKEND_URL } from './constants';
 
-test('content entries can be deleted from the list and from the edit view — neither asks for confirmation', async ({
+test('content entries can be deleted from the list and from the edit view', async ({
   page,
 }) => {
   const slug = `e2e-delete-${crypto.randomUUID()}`;
@@ -46,7 +46,7 @@ test('content entries can be deleted from the list and from the edit view — ne
   const listRow = page.getByRole('row', { name: 'Delete From List' });
   await expect(listRow).toBeVisible();
   await listRow.getByRole('button', { name: 'Open menu' }).click();
-  await page.getByText('Delete').click();
+  await page.getByRole('menuitem', { name: 'Delete' }).click();
   await expect(page.getByText('Are you absolutely sure?')).toBeVisible();
   await page.getByRole('button', { name: 'Delete', exact: true }).click();
   await expect(listRow).not.toBeVisible();
