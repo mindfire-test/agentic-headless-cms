@@ -52,7 +52,7 @@ export const SocialShare = forwardRef<HTMLElement, SocialShareProps>(
     if (activePlatforms.length === 0) {
       return (
         <div
-          ref={ref as React.RefObject<HTMLElement>}
+          ref={ref as React.RefObject<HTMLDivElement>}
           id={id}
           data-pb-settings={JSON.stringify(s)}
           style={{
@@ -93,7 +93,7 @@ export const SocialShare = forwardRef<HTMLElement, SocialShareProps>(
 
     return (
       <div
-        ref={ref as React.RefObject<HTMLElement>}
+        ref={ref as React.RefObject<HTMLDivElement>}
         id={id}
         data-pb-settings={JSON.stringify(s)}
         style={{

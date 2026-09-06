@@ -48,7 +48,7 @@ export const MapEmbed = forwardRef<HTMLElement, MapEmbedProps>((props, ref) => {
 
   return (
     <div
-      ref={ref as React.RefObject<HTMLElement>}
+      ref={ref as React.RefObject<HTMLDivElement>}
       id={id}
       data-pb-settings={JSON.stringify(s)}
       style={{

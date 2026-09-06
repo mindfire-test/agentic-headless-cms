@@ -44,7 +44,7 @@ export const EmbedCode = forwardRef<HTMLElement, EmbedCodeProps>(
 
     return (
       <div
-        ref={ref as React.RefObject<HTMLElement>}
+        ref={ref as React.RefObject<HTMLDivElement>}
         id={id}
         data-pb-settings={JSON.stringify(s)}
         style={{
