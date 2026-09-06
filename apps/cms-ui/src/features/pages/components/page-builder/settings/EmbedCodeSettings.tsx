@@ -14,10 +14,7 @@ export const EmbedCodeSettings: React.FC<{ targetComponentId: string }> = ({
   );
   const setEmbedCode = usePageBuilderStore((state) => state.setEmbedCode);
 
-  const handleChange = (
-    field: keyof typeof settings,
-    value: string | number | boolean | any[],
-  ) => {
+  const handleChange = (field: keyof typeof settings, value: any) => {
     setEmbedCode(targetComponentId, { [field]: value });
   };
 

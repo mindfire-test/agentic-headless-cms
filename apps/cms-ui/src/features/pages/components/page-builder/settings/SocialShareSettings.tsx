@@ -22,10 +22,7 @@ export const SocialShareSettings: React.FC<{ targetComponentId: string }> = ({
   );
   const setSocialShare = usePageBuilderStore((state) => state.setSocialShare);
 
-  const handleChange = (
-    field: keyof typeof settings,
-    value: string | number | boolean | any[],
-  ) => {
+  const handleChange = (field: keyof typeof settings, value: any) => {
     setSocialShare(targetComponentId, { [field]: value });
   };
 
