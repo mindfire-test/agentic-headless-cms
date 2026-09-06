@@ -78,7 +78,7 @@ describe('SidebarNav', () => {
   });
 
   it('marks the item matching the current pathname as the current page', () => {
-    mockUsePathname.mockReturnValue('/webhooks');
+    mockUsePathname.mockReturnValue('/roles-access');
     renderSidebarNav();
 
     expect(
@@ -91,7 +91,7 @@ describe('SidebarNav', () => {
 
   it('renders disabled nav items as non-interactive elements', () => {
     mockUsePathname.mockReturnValue('/');
-    render(<SidebarNav />);
+    renderSidebarNav();
 
     expect(screen.getByText('Webhooks')).toBeInTheDocument();
     expect(
