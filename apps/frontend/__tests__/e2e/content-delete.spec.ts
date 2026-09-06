@@ -45,7 +45,7 @@ test('content entries can be deleted from the list and from the edit view — ne
   // List-row delete: opens actions dropdown, selects Delete, confirms in modal.
   const listRow = page.getByRole('row', { name: 'Delete From List' });
   await expect(listRow).toBeVisible();
-  await listRow.getByRole('button', { name: 'Actions' }).click();
+  await listRow.getByRole('button', { name: 'Open menu' }).click();
   await page.getByText('Delete').click();
   await expect(page.getByText('Are you absolutely sure?')).toBeVisible();
   await page.getByRole('button', { name: 'Delete', exact: true }).click();
