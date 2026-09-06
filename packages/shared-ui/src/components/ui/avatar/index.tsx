@@ -383,7 +383,7 @@ const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
             className,
             'group',
           )}
-          style={getContainerStyle() as any}
+          style={getContainerStyle() as import('framer-motion').MotionStyle}
           whileHover={clickable ? { scale: 1.05 } : undefined}
           whileTap={clickable ? { scale: 0.95 } : undefined}
           {...props}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import Link from 'next/link';
 import { listSchemas } from '@/lib/api/schemas';
 import { Card, CardContent, DataTable } from '@repo/shared-ui';
@@ -20,11 +20,12 @@ export function SchemaList() {
   } = useQuery({
     queryKey: ['schemas', page, pageSize, sort, search],
     queryFn: () => listSchemas({ page, pageSize, sort, search }),
+    placeholderData: keepPreviousData,
   });
 
   const data = schemasData?.data || [];
 
-  if (isLoading) {
+  if (isLoading && !schemasData) {
     return (
       <p className="text-muted-foreground text-sm">Loading content types…</p>
     );
@@ -38,7 +39,7 @@ export function SchemaList() {
     );
   }
 
-  if (!data || data.length === 0) {
+  if (!search && data.length === 0) {
     return (
       <Card>
         <CardContent className="text-muted-foreground py-8 text-center text-sm">
@@ -93,6 +94,7 @@ export function SchemaList() {
       })}
       enableFiltering={true}
       manualFiltering={true}
+      searchValue={search}
       filterPlaceholder="Search content types..."
       onSearchChange={(val: string) => {
         setSearch(val);
@@ -116,6 +118,7 @@ export function SchemaList() {
       pageSize={pageSize}
       onPageSizeChange={(newSize: number) => setPageSize(newSize)}
       onPageChange={(newPage: number) => setPage(newPage)}
+      emptyMessage="No content types match your search query."
     />
   );
 }

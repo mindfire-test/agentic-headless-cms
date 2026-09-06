@@ -185,6 +185,22 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
               </ScrollArea>
             </div>
           )}
+    if (item.disabled) {
+      return (
+        <div
+          key={item.href}
+          className="flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium text-muted-foreground/50 opacity-60 cursor-not-allowed select-none"
+          title={`${item.label} (Coming Soon)`}
+        >
+          <span className="flex items-center gap-2">
+            <Icon className="size-4" />
+            {item.label}
+          </span>
+          {item.disabledBadge ? (
+            <span className="text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border/40">
+              {item.disabledBadge}
+            </span>
+          ) : null}
         </div>
       );
     }
