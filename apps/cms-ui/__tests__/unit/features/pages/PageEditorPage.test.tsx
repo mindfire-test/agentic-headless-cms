@@ -48,6 +48,22 @@ vi.mock('../../../../src/features/pages/hooks/usePageSchema', () => ({
   usePageSchema: () => ({ data: { id: 'schema-1' }, isLoading: false }),
 }));
 
+// Mock GrapesJSEditor
+vi.mock('../../../../src/features/pages/pages/editors/GrapesJSEditor', () => ({
+  GrapesJSEditor: ({
+    initialData,
+    brandTitle,
+  }: {
+    initialData: unknown;
+    brandTitle: string;
+  }) => (
+    <div data-testid="grapesjs-editor-mock">
+      <div data-testid="gjs-initial-data">{JSON.stringify(initialData)}</div>
+      <div data-testid="gjs-brand-title">{brandTitle}</div>
+    </div>
+  ),
+}));
+
 describe('PageEditorPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -116,8 +132,8 @@ describe('PageEditorPage', () => {
 
     renderComponent();
 
-    // Should pass an empty array to initialDesign safely without crashing
-    const initialDesignDiv = await screen.findByTestId('pb-initial-design');
-    expect(initialDesignDiv).toHaveTextContent('[]'); // JSON.stringify([])
+    // Should render GrapesJS builder as fallback with default structure safely without crashing
+    const gjsInitialData = await screen.findByTestId('gjs-initial-data');
+    expect(gjsInitialData).toHaveTextContent('"builder":"grapesjs"');
   });
 });

@@ -14,6 +14,7 @@ export default defineConfig({
     include: ['__tests__/unit/**/*.test.{ts,tsx}'],
     exclude: ['node_modules', '.next'],
     setupFiles: ['./vitest.setup.tsx'],
+    fileParallelism: false,
     server: {
       deps: {
         inline: ['@repo/shared-ui'],

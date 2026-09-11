@@ -8,7 +8,7 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "test": "turbo run test",
+    "test": "turbo run test --concurrency=1",
     "test:coverage": "pnpm -r run test -- --coverage",
     "prepare": "husky",
     "changeset": "changeset",
