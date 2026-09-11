@@ -1,8 +1,9 @@
-import { forwardRef, useEffect, useLayoutEffect, useState } from 'react';
+import { forwardRef, useLayoutEffect } from 'react';
 import {
   usePageBuilderStore,
   FEATURE_GRID_DEFAULTS,
 } from '../stores/pageBuilderStore';
+import DOMPurify from 'dompurify';
 
 interface FeatureGridProps {
   componentId: string;
@@ -16,24 +17,10 @@ const FeatureGrid = forwardRef<HTMLDivElement, FeatureGridProps>(
       (state) => state.featureGrid[id] ?? FEATURE_GRID_DEFAULTS,
     );
 
-    const [isBuilder, setIsBuilder] = useState(
-      !(
-        (window as { __IS_CMS_PREVIEW__?: boolean }).__IS_CMS_PREVIEW__ ||
-        window.location.pathname.startsWith('/preview')
-      ),
-    );
-
-    useEffect(() => {
-      const el = document.getElementById(id);
-      if (el) {
-        setIsBuilder(
-          !(
-            (window as { __IS_CMS_PREVIEW__?: boolean }).__IS_CMS_PREVIEW__ ||
-            window.location.pathname.startsWith('/preview')
-          ),
-        );
-      }
-    }, [id]);
+    const isPreviewEnv =
+      (window as { __IS_CMS_PREVIEW__?: boolean }).__IS_CMS_PREVIEW__ ||
+      window.location.pathname.startsWith('/preview');
+    const isBuilder = !isPreviewEnv;
 
     useLayoutEffect(() => {
       const el = document.getElementById(id);
@@ -51,8 +38,10 @@ const FeatureGrid = forwardRef<HTMLDivElement, FeatureGridProps>(
 
     useLayoutEffect(() => {
       const el = document.getElementById(id);
-      el?.setAttribute('data-pb-settings', JSON.stringify(s));
-    });
+      if (el) {
+        el.setAttribute('data-pb-settings', JSON.stringify(s));
+      }
+    }, [id, s]);
 
     const gridStyle = {
       display: 'grid',
@@ -131,7 +120,9 @@ const FeatureGrid = forwardRef<HTMLDivElement, FeatureGridProps>(
                       display: 'flex',
                       alignItems: 'center',
                     }}
-                    dangerouslySetInnerHTML={{ __html: feature.icon }}
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(feature.icon || ''),
+                    }}
                   />
                 )}
                 <h3
