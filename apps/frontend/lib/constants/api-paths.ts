@@ -42,6 +42,8 @@ export const API_PATHS = {
   WEBHOOKS: {
     BASE: '/api/v1/webhooks',
     BY_ID: (id: string) => `/api/v1/webhooks/${id}`,
+    TEST: (id: string) => `/api/v1/webhooks/${id}/test`,
+    DELIVERIES: (id: string) => `/api/v1/webhooks/${id}/deliveries`,
   },
   LOCALES: {
     BASE: '/api/v1/locales',
@@ -54,6 +56,8 @@ export const API_PATHS = {
       `/api/v1/content/${schemaSlug}/${entryId}`,
     PUBLISH: (schemaSlug: string, entryId: string) =>
       `/api/v1/content/${schemaSlug}/${entryId}/publish`,
+    UNPUBLISH: (schemaSlug: string, entryId: string) =>
+      `/api/v1/content/${schemaSlug}/${entryId}/unpublish`,
     REVERT: (schemaSlug: string, entryId: string) =>
       `/api/v1/content/${schemaSlug}/${entryId}/revert`,
     VERSIONS: (schemaSlug: string, entryId: string) =>
