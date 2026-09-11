@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { PageEditorPage } from '../../../../src/features/pages/pages/PageEditorPage';
+import { PageEditorPage } from '../../../../src/features/pages/pages/editors/PageEditorPage';
 import { BrowserRouter } from 'react-router-dom';
 import * as ReactQuery from '@tanstack/react-query';
 import { usePageBuilderStore } from '../../../../src/features/pages/components/page-builder/stores/pageBuilderStore';
