@@ -1,4 +1,3 @@
-import React from 'react';
 import { forwardRef, useLayoutEffect, useState } from 'react';
 import {
   usePageBuilderStore,
@@ -10,7 +9,7 @@ interface EmbedCodeProps {
   isPreview?: boolean;
 }
 
-export const EmbedCode = forwardRef<HTMLElement, EmbedCodeProps>(
+export const EmbedCode = forwardRef<HTMLDivElement, EmbedCodeProps>(
   (props, ref) => {
     const id = props.componentId ?? 'preview';
     const s = usePageBuilderStore(
@@ -45,7 +44,7 @@ export const EmbedCode = forwardRef<HTMLElement, EmbedCodeProps>(
 
     return (
       <div
-        ref={ref as React.RefObject<HTMLDivElement>}
+        ref={ref}
         id={id}
         data-pb-settings={JSON.stringify(s)}
         style={{
@@ -53,10 +52,14 @@ export const EmbedCode = forwardRef<HTMLElement, EmbedCodeProps>(
           position: 'relative',
         }}
       >
-        <div
-          style={{ pointerEvents: isBuilder ? 'none' : 'auto' }}
-          dangerouslySetInnerHTML={{ __html: s.htmlContent }}
-        />
+        <div style={{ pointerEvents: isBuilder ? 'none' : 'auto' }}>
+          <iframe
+            title="embed-content"
+            sandbox="allow-scripts allow-same-origin"
+            style={{ width: '100%', border: 'none', minHeight: '100px' }}
+            srcDoc={s.htmlContent}
+          />
+        </div>
       </div>
     );
   },

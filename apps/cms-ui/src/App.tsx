@@ -87,7 +87,7 @@ const PagesListPage = React.lazy(() =>
   })),
 );
 const PageEditorPage = React.lazy(() =>
-  import('./features/pages/pages/PageEditorPage').then((m) => ({
+  import('./features/pages/pages/editors/PageEditorPage').then((m) => ({
     default: m.PageEditorPage,
   })),
 );

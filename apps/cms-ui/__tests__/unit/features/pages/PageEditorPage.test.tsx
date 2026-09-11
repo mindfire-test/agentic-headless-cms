@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { PageEditorPage } from '../../../../src/features/pages/pages/PageEditorPage';
+import { PageEditorPage } from '../../../../src/features/pages/pages/editors/PageEditorPage';
 import { BrowserRouter } from 'react-router-dom';
 import * as ReactQuery from '@tanstack/react-query';
 import { usePageBuilderStore } from '../../../../src/features/pages/components/page-builder/stores/pageBuilderStore';
@@ -46,6 +46,22 @@ vi.mock('@mindfiredigital/page-builder-react', () => ({
 // Mock custom hook
 vi.mock('../../../../src/features/pages/hooks/usePageSchema', () => ({
   usePageSchema: () => ({ data: { id: 'schema-1' }, isLoading: false }),
+}));
+
+// Mock GrapesJSEditor
+vi.mock('../../../../src/features/pages/pages/editors/GrapesJSEditor', () => ({
+  GrapesJSEditor: ({
+    initialData,
+    brandTitle,
+  }: {
+    initialData: unknown;
+    brandTitle: string;
+  }) => (
+    <div data-testid="grapesjs-editor-mock">
+      <div data-testid="gjs-initial-data">{JSON.stringify(initialData)}</div>
+      <div data-testid="gjs-brand-title">{brandTitle}</div>
+    </div>
+  ),
 }));
 
 describe('PageEditorPage', () => {
@@ -116,8 +132,8 @@ describe('PageEditorPage', () => {
 
     renderComponent();
 
-    // Should pass an empty array to initialDesign safely without crashing
-    const initialDesignDiv = await screen.findByTestId('pb-initial-design');
-    expect(initialDesignDiv).toHaveTextContent('[]'); // JSON.stringify([])
+    // Should render GrapesJS builder as fallback with default structure safely without crashing
+    const gjsInitialData = await screen.findByTestId('gjs-initial-data');
+    expect(gjsInitialData).toHaveTextContent('"builder":"grapesjs"');
   });
 });
