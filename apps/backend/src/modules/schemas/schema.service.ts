@@ -2,6 +2,7 @@ import type {
   CreateSchemaInput,
   UpdateSchemaInput,
   BaseQueryOptions,
+  SchemaRecord,
 } from '@repo/types';
 import { SchemaRepository } from '@repo/repository';
 import { logger } from '@repo/logger';
@@ -10,6 +11,23 @@ import { EVENT_NAMES, AUDIT_ACTIONS } from '@repo/constants';
 import { ApiError } from '@repo/utils';
 import { getAuditContext } from '../../utils/audit.js';
 import { SERVICE_ERRORS } from '../../utils/error-constants.js';
+import { hookDispatcher } from '../plugins/index.js';
+
+function handlePluginOrSchemaError(
+  error: unknown,
+  fallbackMessage: string,
+): never {
+  if (error instanceof ApiError) throw error;
+  if (error && typeof error === 'object' && 'isPluginError' in error) {
+    const errObj = error as { statusCode?: number; message?: string };
+    throw new ApiError(
+      errObj.statusCode || 400,
+      errObj.message || fallbackMessage,
+    );
+  }
+  throw new ApiError(500, fallbackMessage);
+}
+
 export class SchemaService {
   private repository: SchemaRepository;
   constructor() {
@@ -25,10 +43,18 @@ export class SchemaService {
         { schemaName: input.name, actorUserId, applicationId },
         'SchemaService: create start',
       );
+      const interceptedInput = await hookDispatcher.dispatchSchemaBeforeCreate({
+        input,
+        applicationId,
+      });
       const result = await this.repository.create(
-        { ...input, actorUserId },
+        { ...interceptedInput, actorUserId },
         { applicationId },
       );
+      await hookDispatcher.dispatchSchemaAfterCreate({
+        schema: result as unknown as SchemaRecord,
+        applicationId,
+      });
       logger.debug(
         { schemaId: result.id },
         'SchemaService: create success, emitting audit log',
@@ -51,7 +77,7 @@ export class SchemaService {
       return result;
     } catch (error) {
       logger.error({ err: error }, 'SchemaService Error in create:');
-      throw new ApiError(500, SERVICE_ERRORS.CREATE_SCHEMA_FAILED);
+      handlePluginOrSchemaError(error, SERVICE_ERRORS.CREATE_SCHEMA_FAILED);
     }
   }
   async list(options: BaseQueryOptions = {}, applicationId?: string) {
@@ -101,21 +127,31 @@ export class SchemaService {
       const beforeState = applicationId
         ? await this.repository.getById(id, applicationId)
         : await this.repository.getById(id);
+      const interceptedInput = await hookDispatcher.dispatchSchemaBeforeUpdate({
+        schemaId: id,
+        input,
+        beforeState: beforeState as unknown as SchemaRecord | null,
+      });
       // Perform mutation
       logger.debug({ id }, 'SchemaService: mutating schema');
       const result = applicationId
         ? await this.repository.update(
             id,
             {
-              ...input,
+              ...interceptedInput,
               actorUserId,
             },
             applicationId,
           )
         : await this.repository.update(id, {
-            ...input,
+            ...interceptedInput,
             actorUserId,
           });
+      await hookDispatcher.dispatchSchemaAfterUpdate({
+        schemaId: id,
+        schema: result as unknown as SchemaRecord,
+        beforeState: beforeState as unknown as SchemaRecord | null,
+      });
       // Emit audit event
       logger.debug({ id }, 'SchemaService: emitting audit log');
       const {
@@ -136,7 +172,7 @@ export class SchemaService {
       return result;
     } catch (error) {
       logger.error({ err: error }, 'SchemaService Error in update:');
-      throw new ApiError(500, SERVICE_ERRORS.UPDATE_SCHEMA_FAILED);
+      handlePluginOrSchemaError(error, SERVICE_ERRORS.UPDATE_SCHEMA_FAILED);
     }
   }
   async delete(id: string, force: boolean = false, applicationId?: string) {
@@ -147,11 +183,19 @@ export class SchemaService {
       const beforeState = applicationId
         ? await this.repository.getById(id, applicationId)
         : await this.repository.getById(id);
+      await hookDispatcher.dispatchSchemaBeforeDelete({
+        schemaId: id,
+        beforeState: beforeState as unknown as SchemaRecord | null,
+      });
       // Perform mutation
       logger.debug({ id }, 'SchemaService: mutating data');
       const result = applicationId
         ? await this.repository.delete(id, force, applicationId)
         : await this.repository.delete(id, force);
+      await hookDispatcher.dispatchSchemaAfterDelete({
+        schemaId: id,
+        beforeState: beforeState as unknown as SchemaRecord | null,
+      });
       // Emit audit event
       logger.debug({ id }, 'SchemaService: emitting audit log');
       const { actorUserId, actorAgentId, context } = getAuditContext();
@@ -168,10 +212,7 @@ export class SchemaService {
       return result;
     } catch (error) {
       logger.error({ err: error }, 'SchemaService Error in delete:');
-      if (error instanceof ApiError) {
-        throw error;
-      }
-      throw new ApiError(500, SERVICE_ERRORS.DELETE_SCHEMA_FAILED);
+      handlePluginOrSchemaError(error, SERVICE_ERRORS.DELETE_SCHEMA_FAILED);
     }
   }
 }

@@ -3,10 +3,27 @@ import { DEFAULT_LOCALE } from '@repo/constants';
 import { logger } from '@repo/logger';
 import { eventBus } from '@repo/events';
 import { EVENT_NAMES, AUDIT_ACTIONS } from '@repo/constants';
-import type { ContentQueryOptions } from '@repo/types';
+import type { ContentQueryOptions, ContentEntryRecord } from '@repo/types';
 import { ApiError } from '@repo/utils';
 import { getAuditContext } from '../../utils/audit.js';
 import { SERVICE_ERRORS } from '../../utils/error-constants.js';
+import { hookDispatcher } from '../plugins/index.js';
+
+function handlePluginOrServiceError(
+  error: unknown,
+  fallbackMessage: string,
+): never {
+  if (error instanceof ApiError) throw error;
+  if (error && typeof error === 'object' && 'isPluginError' in error) {
+    const errObj = error as { statusCode?: number; message?: string };
+    throw new ApiError(
+      errObj.statusCode || 400,
+      errObj.message || fallbackMessage,
+    );
+  }
+  throw new ApiError(500, fallbackMessage);
+}
+
 export class ContentService {
   private repository: ContentRepository;
   constructor() {
@@ -88,13 +105,27 @@ export class ContentService {
   ) {
     try {
       logger.info({ schemaId, userId }, 'ContentService: createDraft start');
-      const result = await this.repository.createEntry(
+      const interceptedData = await hookDispatcher.dispatchContentBeforeCreate({
         schemaId,
         data,
         userId,
         locale,
+        applicationId,
+      });
+      const result = await this.repository.createEntry(
+        schemaId,
+        interceptedData,
+        userId,
+        locale,
         { applicationId, userEmail },
       );
+      await hookDispatcher.dispatchContentAfterCreate({
+        schemaId,
+        entry: result as unknown as ContentEntryRecord,
+        userId,
+        locale,
+        applicationId,
+      });
       logger.debug(
         { id: result.id },
         'ContentService: createDraft success, emitting audit log',
@@ -113,7 +144,7 @@ export class ContentService {
       return result;
     } catch (error) {
       logger.error({ err: error }, 'ContentService Error in createDraft:');
-      throw new ApiError(500, SERVICE_ERRORS.CREATE_DRAFT_FAILED);
+      handlePluginOrServiceError(error, SERVICE_ERRORS.CREATE_DRAFT_FAILED);
     }
   }
   async updateDraft(
@@ -122,21 +153,38 @@ export class ContentService {
     userId: string,
     locale: string = DEFAULT_LOCALE,
     userEmail?: string,
+    applicationId?: string,
   ) {
     try {
       logger.info({ entryId, userId }, 'ContentService: updateDraft start');
       // Capture BEFORE state
       logger.debug({ entryId }, 'ContentService: fetching beforeState');
       const beforeState = await this.repository.getEntryById(entryId, locale);
-      // Perform mutation
-      logger.debug({ entryId }, 'ContentService: mutating data');
-      const result = await this.repository.updateEntryDraft(
+      const interceptedData = await hookDispatcher.dispatchContentBeforeUpdate({
         entryId,
         data,
         userId,
         locale,
+        beforeState: beforeState as unknown as ContentEntryRecord | null,
+        applicationId,
+      });
+      // Perform mutation
+      logger.debug({ entryId }, 'ContentService: mutating data');
+      const result = await this.repository.updateEntryDraft(
+        entryId,
+        interceptedData,
+        userId,
+        locale,
         userEmail,
       );
+      await hookDispatcher.dispatchContentAfterUpdate({
+        entryId,
+        entry: result as unknown as ContentEntryRecord,
+        userId,
+        locale,
+        beforeState: beforeState as unknown as ContentEntryRecord | null,
+        applicationId,
+      });
       // Emit audit event
       logger.debug({ entryId }, 'ContentService: emitting audit log');
       const { actorUserId, actorAgentId, context } = getAuditContext();
@@ -153,7 +201,7 @@ export class ContentService {
       return result;
     } catch (error) {
       logger.error({ err: error }, 'ContentService Error in updateDraft:');
-      throw new ApiError(500, SERVICE_ERRORS.UPDATE_DRAFT_FAILED);
+      handlePluginOrServiceError(error, SERVICE_ERRORS.UPDATE_DRAFT_FAILED);
     }
   }
   async updatePartial(
@@ -162,6 +210,7 @@ export class ContentService {
     userId: string,
     locale: string = DEFAULT_LOCALE,
     userEmail?: string,
+    applicationId?: string,
   ) {
     try {
       logger.info({ entryId, userId }, 'ContentService: updatePartial start');
@@ -170,13 +219,29 @@ export class ContentService {
         throw new ApiError(404, 'Entry not found');
       }
       const mergedData = { ...(beforeState.data as object), ...data };
+      const interceptedData = await hookDispatcher.dispatchContentBeforeUpdate({
+        entryId,
+        data: mergedData,
+        userId,
+        locale,
+        beforeState: beforeState as unknown as ContentEntryRecord | null,
+        applicationId,
+      });
       const result = await this.repository.updateEntryDraft(
         entryId,
-        mergedData,
+        interceptedData,
         userId,
         locale,
         userEmail,
       );
+      await hookDispatcher.dispatchContentAfterUpdate({
+        entryId,
+        entry: result as unknown as ContentEntryRecord,
+        userId,
+        locale,
+        beforeState: beforeState as unknown as ContentEntryRecord | null,
+        applicationId,
+      });
       const { actorUserId, actorAgentId, context } = getAuditContext();
       eventBus.emit(EVENT_NAMES.AUDIT_LOG, {
         action: AUDIT_ACTIONS.UPDATE,
@@ -191,7 +256,7 @@ export class ContentService {
       return result;
     } catch (error) {
       logger.error({ err: error }, 'ContentService Error in updatePartial:');
-      throw new ApiError(500, 'Failed to partially update entry.');
+      handlePluginOrServiceError(error, 'Failed to partially update entry.');
     }
   }
   async publishEntry(
@@ -199,12 +264,20 @@ export class ContentService {
     userId: string,
     locale: string = DEFAULT_LOCALE,
     userEmail?: string,
+    applicationId?: string,
   ) {
     try {
       logger.info({ entryId, userId }, 'ContentService: publishEntry start');
       // Capture BEFORE state
       logger.debug({ entryId }, 'ContentService: fetching beforeState');
       const beforeState = await this.repository.getEntryById(entryId, locale);
+      await hookDispatcher.dispatchContentBeforePublish({
+        entryId,
+        userId,
+        locale,
+        beforeState: beforeState as unknown as ContentEntryRecord | null,
+        applicationId,
+      });
       // Perform mutation
       logger.debug({ entryId }, 'ContentService: mutating data');
       const result = await this.repository.publishEntry(
@@ -213,6 +286,13 @@ export class ContentService {
         locale,
         userEmail,
       );
+      await hookDispatcher.dispatchContentAfterPublish({
+        entryId,
+        entry: result as unknown as ContentEntryRecord,
+        userId,
+        locale,
+        applicationId,
+      });
       // Emit audit event
       logger.debug({ entryId }, 'ContentService: emitting audit log');
       const { actorUserId, actorAgentId, context } = getAuditContext();
@@ -229,7 +309,7 @@ export class ContentService {
       return result;
     } catch (error) {
       logger.error({ err: error }, 'ContentService Error in publishEntry:');
-      throw new ApiError(500, SERVICE_ERRORS.PUBLISH_ENTRY_FAILED);
+      handlePluginOrServiceError(error, SERVICE_ERRORS.PUBLISH_ENTRY_FAILED);
     }
   }
   async unpublishEntry(
@@ -237,16 +317,31 @@ export class ContentService {
     userId: string,
     locale: string = DEFAULT_LOCALE,
     userEmail?: string,
+    applicationId?: string,
   ) {
     try {
       logger.info({ entryId, userId }, 'ContentService: unpublishEntry start');
       const beforeState = await this.repository.getEntryById(entryId, locale);
+      await hookDispatcher.dispatchContentBeforeUnpublish({
+        entryId,
+        userId,
+        locale,
+        beforeState: beforeState as unknown as ContentEntryRecord | null,
+        applicationId,
+      });
       const result = await this.repository.unpublishEntry(
         entryId,
         userId,
         locale,
         userEmail,
       );
+      await hookDispatcher.dispatchContentAfterUnpublish({
+        entryId,
+        entry: result as unknown as ContentEntryRecord,
+        userId,
+        locale,
+        applicationId,
+      });
       const { actorUserId, actorAgentId, context } = getAuditContext();
       eventBus.emit(EVENT_NAMES.AUDIT_LOG, {
         action: AUDIT_ACTIONS.UNPUBLISH,
@@ -261,8 +356,7 @@ export class ContentService {
       return result;
     } catch (error) {
       logger.error({ err: error }, 'ContentService Error in unpublishEntry:');
-      if (error instanceof ApiError) throw error;
-      throw new ApiError(500, SERVICE_ERRORS.UNPUBLISH_ENTRY_FAILED);
+      handlePluginOrServiceError(error, SERVICE_ERRORS.UNPUBLISH_ENTRY_FAILED);
     }
   }
 
@@ -333,9 +427,19 @@ export class ContentService {
         undefined,
         applicationId,
       );
+      await hookDispatcher.dispatchContentBeforeDelete({
+        entryId,
+        beforeState: beforeState as unknown as ContentEntryRecord | null,
+        applicationId,
+      });
       // Perform mutation
       logger.debug({ entryId }, 'ContentService: mutating data');
       const result = await this.repository.deleteEntry(entryId, applicationId);
+      await hookDispatcher.dispatchContentAfterDelete({
+        entryId,
+        beforeState: beforeState as unknown as ContentEntryRecord | null,
+        applicationId,
+      });
       // Emit audit event
       logger.debug({ entryId }, 'ContentService: emitting audit log');
       const { actorUserId, actorAgentId, context } = getAuditContext();
@@ -352,7 +456,7 @@ export class ContentService {
       return result;
     } catch (error) {
       logger.error({ err: error }, 'ContentService Error in deleteEntry:');
-      throw new ApiError(500, SERVICE_ERRORS.DELETE_ENTRY_FAILED);
+      handlePluginOrServiceError(error, SERVICE_ERRORS.DELETE_ENTRY_FAILED);
     }
   }
 }

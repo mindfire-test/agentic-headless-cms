@@ -1,0 +1,497 @@
+import type {
+  PluginHooks,
+  ContentBeforeCreateEvent,
+  ContentAfterCreateEvent,
+  ContentBeforeUpdateEvent,
+  ContentAfterUpdateEvent,
+  ContentBeforeDeleteEvent,
+  ContentAfterDeleteEvent,
+  ContentBeforePublishEvent,
+  ContentAfterPublishEvent,
+  ContentBeforeUnpublishEvent,
+  ContentAfterUnpublishEvent,
+  SchemaBeforeCreateEvent,
+  SchemaAfterCreateEvent,
+  SchemaBeforeUpdateEvent,
+  SchemaAfterUpdateEvent,
+  SchemaBeforeDeleteEvent,
+  SchemaAfterDeleteEvent,
+} from '@repo/plugin-sdk';
+import type { CreateSchemaInput, UpdateSchemaInput } from '@repo/types';
+import { logger } from '@repo/logger';
+
+interface RegisteredHook<T> {
+  pluginId: string;
+  handler: T;
+}
+
+export class HookDispatcherService {
+  private hooksMap = new Map<keyof PluginHooks, RegisteredHook<unknown>[]>();
+  private pluginConfigs = new Map<string, Record<string, unknown>>();
+
+  public registerHooks(
+    pluginId: string,
+    hooks?: PluginHooks,
+    config?: Record<string, unknown>,
+  ): void {
+    if (config) {
+      this.pluginConfigs.set(pluginId, config);
+    }
+    if (!hooks) return;
+
+    for (const [key, handler] of Object.entries(hooks)) {
+      const hookName = key as keyof PluginHooks;
+      if (typeof handler === 'function') {
+        const list = this.hooksMap.get(hookName) ?? [];
+        list.push({ pluginId, handler });
+        this.hooksMap.set(hookName, list);
+      }
+    }
+  }
+
+  public updatePluginConfig(
+    pluginId: string,
+    config: Record<string, unknown>,
+  ): void {
+    this.pluginConfigs.set(pluginId, config);
+  }
+
+  public unregisterHooks(pluginId: string): void {
+    this.pluginConfigs.delete(pluginId);
+    for (const [hookName, list] of this.hooksMap.entries()) {
+      const filtered = list.filter((item) => item.pluginId !== pluginId);
+      if (filtered.length === 0) {
+        this.hooksMap.delete(hookName);
+      } else {
+        this.hooksMap.set(hookName, filtered);
+      }
+    }
+  }
+
+  public clear(): void {
+    this.hooksMap.clear();
+    this.pluginConfigs.clear();
+  }
+
+  public getRegisteredHookNames(): string[] {
+    return Array.from(this.hooksMap.keys());
+  }
+
+  public async dispatchContentBeforeCreate(
+    event: ContentBeforeCreateEvent,
+  ): Promise<Record<string, unknown>> {
+    const handlers =
+      (this.hooksMap.get('content.beforeCreate') as
+        | RegisteredHook<
+            (
+              e: ContentBeforeCreateEvent,
+            ) => Promise<Record<string, unknown> | void>
+          >[]
+        | undefined) ?? [];
+
+    let currentData = { ...event.data };
+
+    for (const { pluginId, handler } of handlers) {
+      try {
+        const pluginConfig = this.pluginConfigs.get(pluginId) ?? {};
+        const result = await handler({
+          ...event,
+          data: currentData,
+          pluginConfig,
+        });
+        if (result && typeof result === 'object') {
+          currentData = { ...currentData, ...result };
+        }
+      } catch (error) {
+        logger.error(
+          { pluginId, hook: 'content.beforeCreate', err: error },
+          `Plugin "${pluginId}" aborted content.beforeCreate`,
+        );
+        throw error;
+      }
+    }
+
+    return currentData;
+  }
+
+  public async dispatchContentBeforeUpdate(
+    event: ContentBeforeUpdateEvent,
+  ): Promise<Record<string, unknown>> {
+    const handlers =
+      (this.hooksMap.get('content.beforeUpdate') as
+        | RegisteredHook<
+            (
+              e: ContentBeforeUpdateEvent,
+            ) => Promise<Record<string, unknown> | void>
+          >[]
+        | undefined) ?? [];
+
+    let currentData = { ...event.data };
+
+    for (const { pluginId, handler } of handlers) {
+      try {
+        const pluginConfig = this.pluginConfigs.get(pluginId) ?? {};
+        const result = await handler({
+          ...event,
+          data: currentData,
+          pluginConfig,
+        });
+        if (result && typeof result === 'object') {
+          currentData = { ...currentData, ...result };
+        }
+      } catch (error) {
+        logger.error(
+          { pluginId, hook: 'content.beforeUpdate', err: error },
+          `Plugin "${pluginId}" aborted content.beforeUpdate`,
+        );
+        throw error;
+      }
+    }
+
+    return currentData;
+  }
+
+  public async dispatchContentBeforeDelete(
+    event: ContentBeforeDeleteEvent,
+  ): Promise<void> {
+    const handlers =
+      (this.hooksMap.get('content.beforeDelete') as
+        | RegisteredHook<(e: ContentBeforeDeleteEvent) => Promise<void>>[]
+        | undefined) ?? [];
+
+    for (const { pluginId, handler } of handlers) {
+      try {
+        const pluginConfig = this.pluginConfigs.get(pluginId) ?? {};
+        await handler({ ...event, pluginConfig });
+      } catch (error) {
+        logger.error(
+          { pluginId, hook: 'content.beforeDelete', err: error },
+          `Plugin "${pluginId}" aborted content.beforeDelete`,
+        );
+        throw error;
+      }
+    }
+  }
+
+  public async dispatchContentBeforePublish(
+    event: ContentBeforePublishEvent,
+  ): Promise<void> {
+    const handlers =
+      (this.hooksMap.get('content.beforePublish') as
+        | RegisteredHook<(e: ContentBeforePublishEvent) => Promise<void>>[]
+        | undefined) ?? [];
+
+    for (const { pluginId, handler } of handlers) {
+      try {
+        const pluginConfig = this.pluginConfigs.get(pluginId) ?? {};
+        await handler({ ...event, pluginConfig });
+      } catch (error) {
+        logger.error(
+          { pluginId, hook: 'content.beforePublish', err: error },
+          `Plugin "${pluginId}" aborted content.beforePublish`,
+        );
+        throw error;
+      }
+    }
+  }
+
+  public async dispatchContentAfterPublish(
+    event: ContentAfterPublishEvent,
+  ): Promise<void> {
+    const handlers =
+      (this.hooksMap.get('content.afterPublish') as
+        | RegisteredHook<(e: ContentAfterPublishEvent) => Promise<void>>[]
+        | undefined) ?? [];
+
+    await Promise.allSettled(
+      handlers.map(async ({ pluginId, handler }) => {
+        try {
+          const pluginConfig = this.pluginConfigs.get(pluginId) ?? {};
+          await handler({ ...event, pluginConfig });
+        } catch (error) {
+          logger.error(
+            { pluginId, hook: 'content.afterPublish', err: error },
+            `Plugin "${pluginId}" error in content.afterPublish`,
+          );
+        }
+      }),
+    );
+  }
+
+  public async dispatchContentBeforeUnpublish(
+    event: ContentBeforeUnpublishEvent,
+  ): Promise<void> {
+    const handlers =
+      (this.hooksMap.get('content.beforeUnpublish') as
+        | RegisteredHook<(e: ContentBeforeUnpublishEvent) => Promise<void>>[]
+        | undefined) ?? [];
+
+    for (const { pluginId, handler } of handlers) {
+      try {
+        const pluginConfig = this.pluginConfigs.get(pluginId) ?? {};
+        await handler({ ...event, pluginConfig });
+      } catch (error) {
+        logger.error(
+          { pluginId, hook: 'content.beforeUnpublish', err: error },
+          `Plugin "${pluginId}" aborted content.beforeUnpublish`,
+        );
+        throw error;
+      }
+    }
+  }
+
+  public async dispatchContentAfterUnpublish(
+    event: ContentAfterUnpublishEvent,
+  ): Promise<void> {
+    const handlers =
+      (this.hooksMap.get('content.afterUnpublish') as
+        | RegisteredHook<(e: ContentAfterUnpublishEvent) => Promise<void>>[]
+        | undefined) ?? [];
+
+    await Promise.allSettled(
+      handlers.map(async ({ pluginId, handler }) => {
+        try {
+          const pluginConfig = this.pluginConfigs.get(pluginId) ?? {};
+          await handler({ ...event, pluginConfig });
+        } catch (error) {
+          logger.error(
+            { pluginId, hook: 'content.afterUnpublish', err: error },
+            `Plugin "${pluginId}" error in content.afterUnpublish`,
+          );
+        }
+      }),
+    );
+  }
+
+  public async dispatchContentAfterCreate(
+    event: ContentAfterCreateEvent,
+  ): Promise<void> {
+    const handlers =
+      (this.hooksMap.get('content.afterCreate') as
+        | RegisteredHook<(e: ContentAfterCreateEvent) => Promise<void>>[]
+        | undefined) ?? [];
+
+    await Promise.allSettled(
+      handlers.map(async ({ pluginId, handler }) => {
+        try {
+          const pluginConfig = this.pluginConfigs.get(pluginId) ?? {};
+          await handler({ ...event, pluginConfig });
+        } catch (error) {
+          logger.error(
+            { pluginId, hook: 'content.afterCreate', err: error },
+            `Plugin "${pluginId}" error in content.afterCreate`,
+          );
+        }
+      }),
+    );
+  }
+
+  public async dispatchContentAfterUpdate(
+    event: ContentAfterUpdateEvent,
+  ): Promise<void> {
+    const handlers =
+      (this.hooksMap.get('content.afterUpdate') as
+        | RegisteredHook<(e: ContentAfterUpdateEvent) => Promise<void>>[]
+        | undefined) ?? [];
+
+    await Promise.allSettled(
+      handlers.map(async ({ pluginId, handler }) => {
+        try {
+          const pluginConfig = this.pluginConfigs.get(pluginId) ?? {};
+          await handler({ ...event, pluginConfig });
+        } catch (error) {
+          logger.error(
+            { pluginId, hook: 'content.afterUpdate', err: error },
+            `Plugin "${pluginId}" error in content.afterUpdate`,
+          );
+        }
+      }),
+    );
+  }
+
+  public async dispatchContentAfterDelete(
+    event: ContentAfterDeleteEvent,
+  ): Promise<void> {
+    const handlers =
+      (this.hooksMap.get('content.afterDelete') as
+        | RegisteredHook<(e: ContentAfterDeleteEvent) => Promise<void>>[]
+        | undefined) ?? [];
+
+    await Promise.allSettled(
+      handlers.map(async ({ pluginId, handler }) => {
+        try {
+          const pluginConfig = this.pluginConfigs.get(pluginId) ?? {};
+          await handler({ ...event, pluginConfig });
+        } catch (error) {
+          logger.error(
+            { pluginId, hook: 'content.afterDelete', err: error },
+            `Plugin "${pluginId}" error in content.afterDelete`,
+          );
+        }
+      }),
+    );
+  }
+
+  public async dispatchSchemaBeforeCreate(
+    event: SchemaBeforeCreateEvent,
+  ): Promise<CreateSchemaInput> {
+    const handlers =
+      (this.hooksMap.get('schema.beforeCreate') as
+        | RegisteredHook<
+            (e: SchemaBeforeCreateEvent) => Promise<CreateSchemaInput | void>
+          >[]
+        | undefined) ?? [];
+
+    let currentInput = { ...event.input };
+
+    for (const { pluginId, handler } of handlers) {
+      try {
+        const pluginConfig = this.pluginConfigs.get(pluginId) ?? {};
+        const result = await handler({
+          ...event,
+          input: currentInput,
+          pluginConfig,
+        });
+        if (result && typeof result === 'object') {
+          currentInput = { ...currentInput, ...result };
+        }
+      } catch (error) {
+        logger.error(
+          { pluginId, hook: 'schema.beforeCreate', err: error },
+          `Plugin "${pluginId}" aborted schema.beforeCreate`,
+        );
+        throw error;
+      }
+    }
+
+    return currentInput;
+  }
+
+  public async dispatchSchemaBeforeUpdate(
+    event: SchemaBeforeUpdateEvent,
+  ): Promise<UpdateSchemaInput> {
+    const handlers =
+      (this.hooksMap.get('schema.beforeUpdate') as
+        | RegisteredHook<
+            (e: SchemaBeforeUpdateEvent) => Promise<UpdateSchemaInput | void>
+          >[]
+        | undefined) ?? [];
+
+    let currentInput = { ...event.input };
+
+    for (const { pluginId, handler } of handlers) {
+      try {
+        const pluginConfig = this.pluginConfigs.get(pluginId) ?? {};
+        const result = await handler({
+          ...event,
+          input: currentInput,
+          pluginConfig,
+        });
+        if (result && typeof result === 'object') {
+          currentInput = { ...currentInput, ...result };
+        }
+      } catch (error) {
+        logger.error(
+          { pluginId, hook: 'schema.beforeUpdate', err: error },
+          `Plugin "${pluginId}" aborted schema.beforeUpdate`,
+        );
+        throw error;
+      }
+    }
+
+    return currentInput;
+  }
+
+  public async dispatchSchemaBeforeDelete(
+    event: SchemaBeforeDeleteEvent,
+  ): Promise<void> {
+    const handlers =
+      (this.hooksMap.get('schema.beforeDelete') as
+        | RegisteredHook<(e: SchemaBeforeDeleteEvent) => Promise<void>>[]
+        | undefined) ?? [];
+
+    for (const { pluginId, handler } of handlers) {
+      try {
+        const pluginConfig = this.pluginConfigs.get(pluginId) ?? {};
+        await handler({ ...event, pluginConfig });
+      } catch (error) {
+        logger.error(
+          { pluginId, hook: 'schema.beforeDelete', err: error },
+          `Plugin "${pluginId}" aborted schema.beforeDelete`,
+        );
+        throw error;
+      }
+    }
+  }
+
+  public async dispatchSchemaAfterCreate(
+    event: SchemaAfterCreateEvent,
+  ): Promise<void> {
+    const handlers =
+      (this.hooksMap.get('schema.afterCreate') as
+        | RegisteredHook<(e: SchemaAfterCreateEvent) => Promise<void>>[]
+        | undefined) ?? [];
+
+    await Promise.allSettled(
+      handlers.map(async ({ pluginId, handler }) => {
+        try {
+          const pluginConfig = this.pluginConfigs.get(pluginId) ?? {};
+          await handler({ ...event, pluginConfig });
+        } catch (error) {
+          logger.error(
+            { pluginId, hook: 'schema.afterCreate', err: error },
+            `Plugin "${pluginId}" error in schema.afterCreate`,
+          );
+        }
+      }),
+    );
+  }
+
+  public async dispatchSchemaAfterUpdate(
+    event: SchemaAfterUpdateEvent,
+  ): Promise<void> {
+    const handlers =
+      (this.hooksMap.get('schema.afterUpdate') as
+        | RegisteredHook<(e: SchemaAfterUpdateEvent) => Promise<void>>[]
+        | undefined) ?? [];
+
+    await Promise.allSettled(
+      handlers.map(async ({ pluginId, handler }) => {
+        try {
+          const pluginConfig = this.pluginConfigs.get(pluginId) ?? {};
+          await handler({ ...event, pluginConfig });
+        } catch (error) {
+          logger.error(
+            { pluginId, hook: 'schema.afterUpdate', err: error },
+            `Plugin "${pluginId}" error in schema.afterUpdate`,
+          );
+        }
+      }),
+    );
+  }
+
+  public async dispatchSchemaAfterDelete(
+    event: SchemaAfterDeleteEvent,
+  ): Promise<void> {
+    const handlers =
+      (this.hooksMap.get('schema.afterDelete') as
+        | RegisteredHook<(e: SchemaAfterDeleteEvent) => Promise<void>>[]
+        | undefined) ?? [];
+
+    await Promise.allSettled(
+      handlers.map(async ({ pluginId, handler }) => {
+        try {
+          const pluginConfig = this.pluginConfigs.get(pluginId) ?? {};
+          await handler({ ...event, pluginConfig });
+        } catch (error) {
+          logger.error(
+            { pluginId, hook: 'schema.afterDelete', err: error },
+            `Plugin "${pluginId}" error in schema.afterDelete`,
+          );
+        }
+      }),
+    );
+  }
+}
+
+export const hookDispatcher = new HookDispatcherService();
